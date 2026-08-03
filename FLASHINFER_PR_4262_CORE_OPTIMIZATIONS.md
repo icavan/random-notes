@@ -49,7 +49,7 @@ Relevant source:
 The gate is accumulated in the base-2 logarithmic domain. For one feature dimension, define
 
 $$
-b = \text{lower\_bound}\log_2(e),
+b = \text{lower bound}\log_2(e),
 \qquad
 G_i = \sum_{t=0}^{i} \lambda_t.
 $$
@@ -65,7 +65,7 @@ Directly storing factors such as $2^{G_i}$ and $2^{-G_i}$ would expose a BF16 op
 The kernel introduces the fixed scalar anchor
 
 $$
-C = 16b = 16\cdot\text{lower\_bound}\log_2(e).
+C = 16b = 16\cdot\text{lower bound}\log_2(e).
 $$
 
 It prepares centered GEMM operands
@@ -178,11 +178,11 @@ $$
 The five preparation groups use warps 12–31, four warps per group. Their mapping is
 
 $$
-\text{prep\_instance}=\frac{\text{warp}-12}{4},
+\text{prep instance}=\frac{\text{warp}-12}{4},
 $$
 
 $$
-\text{chunk\_idx}=5\cdot\text{prep\_iter}+\text{prep\_instance}.
+\text{chunk index}=5\cdot\text{prep iteration}+\text{prep instance}.
 $$
 
 Consequently:
