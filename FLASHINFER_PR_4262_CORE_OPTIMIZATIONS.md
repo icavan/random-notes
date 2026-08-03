@@ -109,11 +109,11 @@ The 32-token preparation path constructs the chunk-local matrices independently 
 One useful high-level form is
 
 $$
-L = \operatorname{strictLower}\!\left(\operatorname{diag}(\beta)K_cK_i^T\right),
+L = \mathrm{strictLower}\!\left(\mathrm{diag}(\beta)K_cK_i^T\right),
 $$
 
 $$
-M_{qk}=\operatorname{lowerTri}\!\left(Q_cK_i^T\right),
+M_{qk}=\mathrm{lowerTri}\!\left(Q_cK_i^T\right),
 \qquad
 INV=(I+L)^{-1}.
 $$
@@ -135,7 +135,7 @@ $$
 The inter-chunk computation can then be written as
 
 $$
-S_d=S_{old}\operatorname{diag}(a),
+S_d=S_{old}\mathrm{diag}(a),
 $$
 
 $$
@@ -145,7 +145,7 @@ P=S_{old}K_d^T,
 $$
 
 $$
-R=(V^T-P)\operatorname{diag}(\beta),
+R=(V^T-P)\mathrm{diag}(\beta),
 \qquad
 U=R\,INV^T.
 $$
