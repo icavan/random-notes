@@ -60,7 +60,7 @@ $$
 G_i \in [32b, 0].
 $$
 
-Directly storing factors such as \(2^{G_i}\) and \(2^{-G_i}\) would expose a BF16 operand to an exponent magnitude of \(32|b|\), which is too large for the standard `lower_bound = -5` configuration.
+Directly storing factors such as $2^{G_i}$ and $2^{-G_i}$ would expose a BF16 operand to an exponent magnitude of $32|b|$, which is too large for the standard `lower_bound = -5` configuration.
 
 The kernel introduces the fixed scalar anchor
 
@@ -118,7 +118,7 @@ M_{qk}=\operatorname{lowerTri}\!\left(Q_cK_i^T\right),
 INV=(I+L)^{-1}.
 $$
 
-The recurrent-domain operands restore the chunk endpoint \(G_T\):
+The recurrent-domain operands restore the chunk endpoint $G_T$:
 
 $$
 Q_d=\text{scale}\,\hat Q\,2^G,
@@ -264,11 +264,7 @@ $$
 The kernel concatenates the right operands and accumulators along N:
 
 $$
-[S_{new}\;|\;O]
-=
-[S_d\;|\;O_0]
-+
-U[K_r\;|\;M_{qk}^T].
+[S_{new}\;|\;O] = [S_d\;|\;O_0] + U[K_r\;|\;M_{qk}^T].
 $$
 
 For M128, the logical shapes are
