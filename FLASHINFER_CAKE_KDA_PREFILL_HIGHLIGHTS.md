@@ -74,11 +74,7 @@ $$
 They are concatenated into one logical GEMM:
 
 $$
-[S_{\mathrm{new}}\mid O]
-=
-[S_d\mid O_0]
-+
-U[K_r\mid M_{qk}^{T}].
+[S_{\mathrm{new}}\mid O]=[S_d\mid O_0]+U[K_r\mid M_{qk}^{T}].
 $$
 
 For the M128 schedule:
