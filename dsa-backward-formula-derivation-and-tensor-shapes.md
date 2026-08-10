@@ -193,6 +193,8 @@ there is one such scalar per token-head pair, so the full `D` tensor has shape
 
 ### 3.3 Gradient through softmax
 
+[![Softmax Jacobian from scores to efficient backward](pictures/softmax-jacobian-from-scores-to-efficient-backward.png)](pictures/softmax-jacobian-from-scores-to-efficient-backward.png)
+
 The softmax Jacobian for a selected score is:
 
 ```math
