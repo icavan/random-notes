@@ -16,23 +16,23 @@ This article describes a CuTeDSL implementation of the power-of-two FHT, explain
 
 The order-two Hadamard matrix is
 
-$$
+```math
 H_2 =
 \begin{bmatrix}
 1 & 1 \\
 1 & -1
 \end{bmatrix}.
-$$
+```
 
 Larger power-of-two Hadamard matrices are constructed with Kronecker products:
 
-$$
+```math
 H_{2^k} = H_2^{\otimes k}.
-$$
+```
 
 Equivalently,
 
-$$
+```math
 H_{2D}
 = H_2 \otimes H_D
 =
@@ -40,31 +40,31 @@ H_{2D}
 H_D & H_D \\
 H_D & -H_D
 \end{bmatrix}.
-$$
+```
 
 For an input vector $x \in \mathbb{R}^D$, the normalized transform is
 
-$$
+```math
 y = \frac{1}{\sqrt{D}} H_D x.
-$$
+```
 
 Because $H_D H_D^T = D I$, the normalized transform preserves the Euclidean norm:
 
-$$
+```math
 \lVert y \rVert_2 = \lVert x \rVert_2.
-$$
+```
 
 In machine-learning workloads, this makes the FHT useful as a cheap orthogonal rotation. It mixes every output coordinate with every input coordinate, redistributes concentrated energy and outliers, and requires neither learned weights nor a stored dense matrix.
 
 ---
 
-## 2. Why the complexity is $D\log_2D$
+## 2. Why the complexity is D log₂ D
 
 The Kronecker factorization exposes the butterfly primitive
 
-$$
+```math
 (a,b) \longrightarrow (a+b, a-b).
-$$
+```
 
 At each stage, the transform applies $D/2$ butterflies. Each butterfly produces two results with two add/subtract operations, so every stage performs exactly $D$ arithmetic operations.
 
@@ -80,9 +80,9 @@ stage k-1: distance D/2
 
 For $D=2^k$, there are $k=\log_2D$ stages. Therefore,
 
-$$
+```math
 \text{FHT work} = D\log_2D.
-$$
+```
 
 A conventional dense GEMV costs approximately $2D^2$ FLOPs when multiplication and addition are both counted. The FHT therefore changes the asymptotic work from $O(D^2)$ to $O(D\log D)$.
 
@@ -104,9 +104,9 @@ If multiplication by `+1` or `-1` is treated as a free sign operation, the dense
 
 Consider a row-major input tensor with logical shape `[rows, D]`. The power-of-two kernel decomposes the transform dimension as
 
-$$
+```math
 D = n_{\text{chunks}} \times n_{\text{threads}} \times n_{\text{elts}}.
-$$
+```
 
 Each logical row is cooperatively processed by `n_threads` threads. Each thread owns `n_chunks × n_elts` values in registers. The implementation uses:
 
@@ -176,13 +176,13 @@ The thread-local, thread-index, warp-index, and chunk-index transforms are separ
 
 ---
 
-## 4. The small-$D$ bottleneck is not arithmetic
+## 4. The small-D bottleneck is not arithmetic
 
 For a conventional one-row-per-CTA kernel,
 
-$$
+```math
 N_{\text{CTA}} = N_{\text{rows}}.
-$$
+```
 
 This mapping is natural for large transforms: a row supplies enough arithmetic and memory traffic to justify a CTA. It becomes inefficient for small $D$.
 
@@ -249,20 +249,20 @@ If the batch size is not divisible by the preferred packing factor, the wrapper 
 
 A simple latency model makes the intended effect explicit. Let $r$ be the number of rows packed into one CTA and let $t_{\text{CTA}}$ represent the amortized GPU-side block-dispatch cost:
 
-$$
+```math
 T_{\text{original}}
 \approx T_{\text{kernel launch}}
 + N_{\text{rows}}t_{\text{CTA}}
 + T_{\text{useful work}},
-$$
+```
 
-$$
+```math
 T_{\text{packed}}
 \approx T_{\text{kernel launch}}
 + \left\lceil\frac{N_{\text{rows}}}{r}\right\rceil t_{\text{CTA}}
 + T_{\text{useful work}}
 + T_{\text{packing overhead}}.
-$$
+```
 
 Packing does not reduce memory traffic or FHT arithmetic. It attacks only the CTA-count term. Consequently, $r$ is an upper bound on the possible speedup, not a prediction of the measured speedup.
 
@@ -379,9 +379,9 @@ If the logical tensor is
 
 and the FHT operates on the last dimension, the number of independent transform rows is
 
-$$
+```math
 N_{\text{rows}} = B_{\text{local}} T_{\text{local}} H_{\text{local}}.
-$$
+```
 
 For `D=128` BF16/FP16, the measured row thresholds translate to the following approximate values of $B_{\text{local}}H_{\text{local}}$:
 
