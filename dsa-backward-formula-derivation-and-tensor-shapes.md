@@ -355,7 +355,7 @@ S = \alpha Q_iK_{sel}^{\mathsf T}
 ```
 
 ```math
-P = \operatorname{softmax}_{KV+sink}(S)
+P = \mathrm{softmax}_{KV+sink}(S)
 \in \mathbb{R}^{64\times 2048},
 ```
 
@@ -372,7 +372,7 @@ dP = dO_iV_{sel}^{\mathsf T}
 ```
 
 ```math
-D = \operatorname{reduce\_sum}_{D_v}(dO_i\odot O_i)
+D = \mathrm{reduce\_sum}_{D_v}(dO_i\odot O_i)
 \in \mathbb{R}^{64},
 ```
 
@@ -479,7 +479,7 @@ LSE_{kv}=\ln\left(\sum_{t=1}^{T}\exp(s_t)\right).
 When a sink is enabled, backward first combines it with the sink logit:
 
 ```math
-LSE_{total}=\operatorname{logaddexp}(LSE_{kv},z).
+LSE_{total}=\mathrm{logaddexp}(LSE_{kv},z).
 ```
 
 The rest of backward must use `LSE_total`. Confusing KV-only and sink-inclusive
