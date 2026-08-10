@@ -347,6 +347,62 @@ At `D=128` and 2,097,152 rows:
 
 FP32 moves twice as many bytes and uses four elements per vectorized load rather than eight. More useful work remains per row, so CTA dispatch accounts for a smaller fraction of total runtime.
 
+### 6.4 Speed-of-Light analysis
+
+A single percentage called “the SOL” is meaningful only after the limiting resource has been named. For this FHT, tensor-core peak FLOPs are not the relevant denominator: the kernel uses scalar FP32 add/subtract instructions, warp shuffles, and one global read plus one global write. For the tested `D=64…512` BF16 cases, the arithmetic intensity is low enough that the useful throughput roof is primarily HBM bandwidth, while small workloads are instead bounded by the fixed launch/dispatch floor.
+
+Using the article's convention of one FLOP per add or subtract and excluding optional normalization, a BF16 row performs $D\log_2D$ FLOPs and transfers at least $4D$ bytes: $2D$ bytes read and $2D$ bytes written. Therefore,
+
+```math
+B_{\text{eff}} = \frac{2 N_{\text{rows}} D s}{t},
+\qquad
+\mathrm{SOL}_{\text{HBM}} = \frac{B_{\text{eff}}}{B_{\text{HBM,peak}}},
+```
+
+```math
+\mathrm{AI}_{\text{FHT}}
+= \frac{D\log_2D}{2Ds}
+= \frac{\log_2D}{2s}
+= \frac{\log_2D}{4}
+\quad \text{FLOP/byte for BF16},
+```
+
+where $N_{\text{rows}}$ is the row count, $s=2$ bytes for BF16, and the effective bandwidth counts the compulsory input and output traffic. At `D=128`, the arithmetic intensity is only `1.75 FLOP/byte`. NVIDIA specifies `4.8 TB/s` for H200 SXM and up to `8 TB/s` for B200 SXM ([H200 specifications](https://www.nvidia.com/en-us/data-center/h200/), [HGX component specifications](https://docs.nvidia.com/enterprise-reference-architectures/hgx-ai-factory/latest/components.html)). The resulting bandwidth roof is `8.40 TFLOP/s` on H200 and `14.0 TFLOP/s` on B200—far below either GPU's CUDA-core FP32 peak. This is why a raw percentage of FP32 peak would understate the quality of the kernel.
+
+For `D=128`, BF16, and 2,097,152 rows, the compulsory traffic is 1.074 GB and the algorithmic work is 1.879 GFLOP:
+
+| GPU | Packed time | Effective bandwidth | HBM SOL | FHT throughput | Bandwidth roof |
+|---|---:|---:|---:|---:|---:|
+| H200 | 255.56 µs | 4.20 TB/s | **87.5%** | 7.35 TFLOP/s | 8.40 TFLOP/s |
+| B200 | 193.13 µs | 5.56 TB/s | **69.5%** | 9.73 TFLOP/s | 14.0 TFLOP/s |
+
+The B200 kernel is faster in absolute time and arithmetic throughput even though its percentage of peak bandwidth is lower. Its HBM roof is 1.67× higher, so more of that roof remains available than this small-row instruction stream can consume.
+
+The result is consistent across the tested dimensions. At 524,288 BF16 rows:
+
+| $D$ | Rows per CTA | H200 effective BW / HBM SOL | B200 effective BW / HBM SOL |
+|---:|---:|---:|---:|
+| 64 | 16 | 3.83 TB/s / 79.7% | 4.28 TB/s / 53.5% |
+| 128 | 8 | 4.03 TB/s / 84.0% | 5.20 TB/s / 65.0% |
+| 256 | 4 | 3.90 TB/s / 81.2% | 5.00 TB/s / 62.5% |
+| 512 | 4 | 4.22 TB/s / 87.9% | 5.72 TB/s / 71.5% |
+
+Thus the optimized kernel sustains roughly **80–88% of H200's theoretical HBM bandwidth** and **53–72% of B200's** over `D=64…512` at this row count. These are application-level roofline numbers, not direct DRAM-counter measurements: they count only one logical input read and one output write, use vendor peak bandwidth as the denominator, and include all shuffle, instruction-issue, addressing, synchronization, and tail-wave losses in the measured time.
+
+There is also a separate structural ceiling for row packing. With eight `D=128` rows per CTA, eliminating block-dispatch cost alone can provide at most 8× speedup:
+
+```math
+\eta_{\text{packing}}
+= \frac{S_{\text{measured}}}{\text{rows per CTA}}.
+```
+
+| GPU | CTA-count reduction | Measured plateau | Fraction of 8× structural ceiling |
+|---|---:|---:|---:|
+| H200 | 8× | 4.94× | 61.8% |
+| B200 | 8× | 5.70× | 71.3% |
+
+This ratio is not another hardware-utilization score. It explains why “8× fewer CTAs” does not imply “8× lower latency”: memory traffic, butterfly instructions, the one remaining kernel launch, and tail waves do not disappear. Once CTA dispatch is sufficiently amortized, the active roof moves toward HBM bandwidth. For very small row counts, neither bandwidth SOL nor the 8× structural ceiling is informative because the entire call sits on the fixed runtime floor.
+
 ---
 
 ## 7. Why the stronger GPU does not always reach the sweet spot earlier
@@ -451,6 +507,6 @@ The FHT maps naturally onto the GPU hierarchy because its Kronecker factors corr
 
 For small $D$, however, arithmetic efficiency is not the main problem. A one-row-per-CTA mapping creates too many tiny blocks. Packing independent rows into a fuller CTA attacks the real bottleneck by reducing GPU block-dispatch work while preserving the same mathematical transform and memory traffic.
 
-The measured result is substantial: up to 5.7× for `D=128`, approximately 9× for `D=64`, and multi-fold gains at realistic flattened transformer-training row counts. Just as importantly, SASS analysis shows why a superficially similar “register transpose removal” does not provide the same benefit: the compiler had already removed it.
+The measured result is substantial: up to 5.7× for `D=128`, approximately 9× for `D=64`, and multi-fold gains at realistic flattened transformer-training row counts. At 524K BF16 rows, the optimized implementation sustains 80–88% of the H200 HBM roof and 53–72% of the larger B200 HBM roof across `D=64…512`; the large `D=128` case reaches 87.5% and 69.5%, respectively. Just as importantly, SASS analysis shows why a superficially similar “register transpose removal” does not provide the same benefit: the compiler had already removed it.
 
 Fast GPU kernels come from optimizing what survives compilation—and, for small FHTs, what survives is the CTA count.
