@@ -389,6 +389,27 @@ The result is consistent across the tested dimensions. At 524,288 BF16 rows:
 
 Thus the optimized kernel sustains roughly **80–88% of H200's theoretical HBM bandwidth** and **53–72% of B200's** over `D=64…512` at this row count. These are application-level roofline numbers, not direct DRAM-counter measurements: they count only one logical input read and one output write, use vendor peak bandwidth as the denominator, and include all shuffle, instruction-issue, addressing, synchronization, and tail-wave losses in the measured time.
 
+#### Occupancy appendix
+
+Occupancy is a useful companion to bandwidth SOL, but it measures a different quantity: how many warps are resident, not how much useful work, instruction throughput, or HBM bandwidth those warps deliver. The following counters were collected on the B200 with Nsight Compute 2025.3 for the same 524,288-row BF16 cases. The current power-of-two source was compiled for compute capability 10.0 with CUTLASS DSL 4.4.2. “One row” forces `rows_per_block=1`; “packed” is the optimized dispatcher used in the timing tables.
+
+| $D$ | Layout | Rows per CTA | Threads per CTA | Registers per thread | Dynamic SMEM per CTA | Theoretical occupancy | Achieved active warps per SM | Achieved occupancy |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|
+| 64 | One row | 1 | 8 | 24 | 256 B | 50% | 10.02 | 15.66% |
+| 64 | Packed | 16 | 128 | 25 | 256 B | **100%** | 51.64 | **80.70%** |
+| 128 | One row | 1 | 16 | 24 | 512 B | 50% | 12.45 | 19.46% |
+| 128 | Packed | 8 | 128 | 25 | 512 B | **100%** | 53.69 | **83.89%** |
+| 256 | One row | 1 | 32 | 25 | 1,024 B | 50% | 13.85 | 21.65% |
+| 256 | Packed | 4 | 128 | 25 | 1,024 B | **100%** | 54.52 | **85.18%** |
+| 512 | One row | 1 | 32 | 43 | 2,048 B | 50% | 29.29 | 45.77% |
+| 512 | Packed | 4 | 128 | 32 | 2,048 B | **100%** | 58.20 | **90.94%** |
+
+The one-row kernels allocate one hardware warp per CTA even when only 8 or 16 lanes contain logical threads. The B200 can keep at most 32 such CTAs resident per SM, so the block-count limit caps them at 32 resident warps out of 64, or 50% theoretical occupancy. The `D=64` and `D=128` cases additionally leave 75% and 50% of the lanes in each allocated warp inactive. Packing fills a conventional 128-thread CTA with four physical warps: 16 resident CTAs then provide 64 resident warps, reaching 100% theoretical occupancy. The measured register and shared-memory footprints do not reduce that limit. Nsight Compute also reports approximately 1 KiB of driver shared memory per CTA for both layouts; it is separate from the dynamic-SMEM column and is not the limiting resource here.
+
+The runtime counters show the practical result: packing raises achieved occupancy by 2.0–5.2× and achieved active warps from 10.02–29.29 to 51.64–58.20 per SM. This reinforces the CTA-overhead diagnosis, but it does **not** mean occupancy alone produces the end-to-end speedup. For example, the packed B200 kernels already achieve 80.70–90.94% occupancy while reaching 53.5–71.5% of the HBM roof. The remaining gap includes short-CTA ramp and drain, block dispatch, shuffle and scalar-instruction issue, address generation, memory latency, and tail waves. The increase from `D=64` to `D=512` is also consistent with longer-lived CTAs amortizing those transient phases; it is not proof that occupancy is the sole causal bottleneck.
+
+These achieved-occupancy and register-allocation numbers are B200 measurements, not values projected onto H200. Both are compiler- and architecture-specific; the H200 bandwidth SOL above remains valid, but an H200 occupancy table requires a separate Nsight Compute capture of its compiled binary. For metric definitions and interpretation, see the [Nsight Compute occupancy documentation](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#occupancy).
+
 There is also a separate structural ceiling for row packing. With eight `D=128` rows per CTA, eliminating block-dispatch cost alone can provide at most 8× speedup:
 
 ```math
