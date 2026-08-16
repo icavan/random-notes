@@ -1,6 +1,10 @@
 # CAKE KDA Prefill: Scaling K1 Parallelism for Small B x H
 
-> Design note for [FlashInfer PR #4524](https://github.com/flashinfer-ai/flashinfer/pull/4524), which improves CAKE KDA prefill utilization when the number of sequence-head tasks is too small to fill an SM100-family GPU.
+> Design note for the [small-BH K1-parallelism implementation branch](https://github.com/icavan/flashinfer/tree/kda/k1-parallelism), which improves CAKE KDA prefill utilization when the number of sequence-head tasks is too small to fill an SM100-family GPU.
+
+## TL;DR
+
+Small `B x H` leaves too few CAKE CTAs to fill an SM100-family GPU. The C4 path keeps ordered K2 recurrence and its TMEM-resident state on owner CTAs, while helper CTAs prepare independent K1 chunks and hand them over through a bounded, generation-tagged GMEM ring. M128 uses one owner plus three helpers; the specialized M64 route uses two owners plus two helpers. K1 preparation overlaps K2 chunk by chunk, and conservative dispatch preserves the original CAKE path as the fallback outside measured small-task regions.
 
 ![CAKE KDA small-BH owner-helper design](pictures/cake-kda-small-bh-k1-owner-helper-design.png)
 
@@ -43,6 +47,10 @@ The protocol has three important properties:
 
 Release/acquire ordering makes the packet visible before the ready flag is observed, while the generation tag prevents a stale ready state from being confused with a later reuse of the same slot. Only chunk-local prepared data crosses the mailbox; recurrent state remains private to the owner.
 
+For M64, the two owners acknowledge independently. Starting from `gen | 001` (ready), owner 0 contributes the mask that produces `gen | 011`, while owner 1 contributes the mask that produces `gen | 101`. A slot becomes reusable only when both acknowledgements are present as `gen | 111`; `011` is therefore not an intermediate state that owner 1 directly transforms into `111`.
+
+![Cross-CTA bounded ring mailbox and corrected M64 acknowledgement masks](pictures/cake-kda-small-bh-k1-mailbox-protocol.png)
+
 ## Fine-grained K1-K2 overlap
 
 This is still a fully fused owner-helper megakernel, not a batch-wide two-kernel K1/K2 split. The owner does not wait for every helper to finish all K1 work.
@@ -69,5 +77,5 @@ The optimization separates two dependency domains that were previously bound to 
 
 ## References
 
-- [FlashInfer PR #4524](https://github.com/flashinfer-ai/flashinfer/pull/4524)
+- [Small-BH K1-parallelism implementation branch](https://github.com/icavan/flashinfer/tree/kda/k1-parallelism)
 - [CAKE KDA prefill baseline, PR #4262](https://github.com/flashinfer-ai/flashinfer/pull/4262)
