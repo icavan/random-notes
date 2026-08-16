@@ -71,6 +71,19 @@ Automatic dispatch enables C4 only in measured small-task regions. It keeps the 
 
 Packed variable-length inputs are also routed conservatively. The B200 decision uses host-known aggregate sequence information and does not copy device `cu_seqlens` to the CPU. B300 packed inputs and shapes outside the measured regions remain on the baseline path.
 
+## B200 performance smoke results
+
+The following cold-L2 CUDA-event measurements are the small-`B x H` smoke results reported with the implementation. They use source-built modules and two deterministically shuffled rounds, and validate both the output and final recurrent state before timing. Small-head rows use CAKE-M128 as the valid baseline because the original M64 baseline is specialized for the fixed `B=1`, `H=64` contract and is not a small-head oracle.
+
+| B | T | H | Selected route | CAKE-M128 | Owner/helper | Speedup |
+| ---: | ---: | ---: | --- | ---: | ---: | ---: |
+| 1 | 2048 | 1 | M128 C4/D15 | 0.144480 ms | 0.119872 ms | 1.205x |
+| 1 | 2048 | 4 | M128 C4/D15 | 0.144480 ms | 0.121888 ms | 1.185x |
+| 1 | 2048 | 8 | M128 C4/D15 | 0.142048 ms | 0.119712 ms | 1.187x |
+| 1 | 4096 | 1 | M64 C4/D10 | 0.269424 ms | 0.199120 ms | 1.353x |
+| 1 | 4096 | 4 | M128 C4/D15 | 0.270496 ms | 0.216064 ms | 1.252x |
+| 1 | 4096 | 8 | M128 C4/D15 | 0.267168 ms | 0.211008 ms | 1.266x |
+
 ## Takeaway
 
 The optimization separates two dependency domains that were previously bound to the same CTA count: stateless K1 chunk preparation and stateful K2 recurrence. Helper CTAs scale the former across otherwise idle SMs, while owner CTAs preserve the latter's ordering and on-chip state. That makes small-`B x H` CAKE prefill better able to use the GPU without giving up the fully fused recurrent execution model.
