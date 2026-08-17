@@ -1,0 +1,219 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="title desc">
+  <title id="title">DeepSeek Sparse Attention training lifecycle</title>
+  <desc id="desc">Four-stage timeline from a pretrained dense MLA checkpoint, through dense indexer warm-up, sparse continued pre-training, and sparse post-training. The diagram shows attention mode, trainable components, losses, and gradient boundaries.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="0.55" stop-color="#0a1627"/>
+      <stop offset="1" stop-color="#06101c"/>
+    </linearGradient>
+    <linearGradient id="timeline" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.34" stop-color="#c084fc"/>
+      <stop offset="0.69" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000814" flood-opacity="0.45"/>
+    </filter>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowCyan" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#c084fc"/>
+    </marker>
+    <style>
+      .title { font: 700 48px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f8fafc; letter-spacing: -1px; }
+      .subtitle { font: 400 21px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #94a3b8; }
+      .phase { font: 700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 1.7px; }
+      .heading { font: 700 27px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f8fafc; }
+      .subheading { font: 600 17px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #cbd5e1; }
+      .body { font: 400 17px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #cbd5e1; }
+      .small { font: 400 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #94a3b8; }
+      .pill { font: 650 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .lane { font: 650 15px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #94a3b8; letter-spacing: 0.5px; }
+      .metric { font: 700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f8fafc; }
+      .formula { font: 500 17px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #e2e8f0; }
+      .footer { font: 400 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #64748b; }
+      .card { fill: #0e1b2d; stroke: #26364c; stroke-width: 1.5; }
+      .inner { fill: #0a1525; stroke: #233349; stroke-width: 1.2; }
+      .divider { stroke: #26364c; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1120" fill="url(#bg)"/>
+  <circle cx="1650" cy="70" r="250" fill="#38bdf8" opacity="0.035"/>
+  <circle cx="150" cy="980" r="300" fill="#c084fc" opacity="0.03"/>
+
+  <text id="titleText" x="70" y="78" class="title">DeepSeek Sparse Attention: Training Lifecycle</text>
+  <text x="72" y="114" class="subtitle">A dense-to-sparse migration recipe with separately supervised token selection</text>
+
+  <!-- Timeline -->
+  <line x1="125" y1="177" x2="1675" y2="177" stroke="#1e293b" stroke-width="14" stroke-linecap="round"/>
+  <line x1="125" y1="177" x2="1675" y2="177" stroke="url(#timeline)" stroke-width="5" stroke-linecap="round" filter="url(#glow)"/>
+  <g>
+    <circle cx="200" cy="177" r="18" fill="#08111f" stroke="#38bdf8" stroke-width="5"/>
+    <circle cx="620" cy="177" r="18" fill="#08111f" stroke="#c084fc" stroke-width="5"/>
+    <circle cx="1110" cy="177" r="18" fill="#08111f" stroke="#34d399" stroke-width="5"/>
+    <circle cx="1580" cy="177" r="18" fill="#08111f" stroke="#f472b6" stroke-width="5"/>
+  </g>
+
+  <!-- Stage 0 -->
+  <g filter="url(#shadow)">
+    <rect x="55" y="220" width="330" height="620" rx="22" class="card"/>
+    <rect x="76" y="244" width="112" height="28" rx="14" fill="#38bdf8" opacity="0.16" stroke="#38bdf8"/>
+    <text x="92" y="264" class="phase" fill="#7dd3fc">FOUNDATION</text>
+    <text x="76" y="310" class="heading">Dense MLA Base</text>
+    <text x="76" y="339" class="small">V3.1-Terminus · 128K context</text>
+
+    <rect x="76" y="375" width="288" height="97" rx="14" class="inner"/>
+    <text x="96" y="401" class="lane">ATTENTION MODE</text>
+    <text x="96" y="439" class="metric" fill="#7dd3fc">Full dense MLA</text>
+    <text x="96" y="461" class="small">Every query attends to all prior KV</text>
+
+    <rect x="76" y="488" width="288" height="138" rx="14" class="inner"/>
+    <text x="96" y="514" class="lane">MODEL STATE</text>
+    <rect x="96" y="535" width="124" height="30" rx="15" fill="#38bdf8" opacity="0.16" stroke="#38bdf8"/>
+    <text x="111" y="556" class="pill" fill="#7dd3fc">Main model: ready</text>
+    <rect x="96" y="578" width="136" height="30" rx="15" fill="#64748b" opacity="0.12" stroke="#475569"/>
+    <text x="111" y="599" class="pill" fill="#94a3b8">Indexer: newly added</text>
+
+    <rect x="76" y="642" width="288" height="174" rx="14" class="inner"/>
+    <text x="96" y="668" class="lane">WHY START HERE?</text>
+    <text x="96" y="704" class="body">Dense attention already knows</text>
+    <text x="96" y="730" class="body">which context tokens matter.</text>
+    <line x1="96" y1="752" x2="340" y2="752" class="divider"/>
+    <text x="96" y="780" class="small">Use it as the teacher signal for</text>
+    <text x="96" y="802" class="small">the lightweight Lightning Indexer.</text>
+  </g>
+
+  <!-- Stage 1 -->
+  <g filter="url(#shadow)">
+    <rect x="405" y="220" width="420" height="620" rx="22" class="card"/>
+    <rect x="426" y="244" width="144" height="28" rx="14" fill="#c084fc" opacity="0.16" stroke="#c084fc"/>
+    <text x="442" y="264" class="phase" fill="#d8b4fe">STAGE 1 · 1K STEPS</text>
+    <text x="426" y="310" class="heading">Dense Indexer Warm-up</text>
+    <text x="426" y="339" class="small">2.1B tokens · learning rate 1e−3</text>
+
+    <rect x="426" y="375" width="378" height="97" rx="14" class="inner"/>
+    <text x="446" y="401" class="lane">ATTENTION MODE</text>
+    <text x="446" y="439" class="metric" fill="#d8b4fe">Dense MLA remains active</text>
+    <text x="446" y="461" class="small">No top-k sparsity yet</text>
+
+    <rect x="426" y="488" width="378" height="138" rx="14" class="inner"/>
+    <text x="446" y="514" class="lane">TRAINABLE PARAMETERS</text>
+    <rect x="446" y="535" width="138" height="30" rx="15" fill="#fb7185" opacity="0.13" stroke="#fb7185"/>
+    <text x="461" y="556" class="pill" fill="#fda4af">Main model: frozen</text>
+    <rect x="446" y="578" width="141" height="30" rx="15" fill="#c084fc" opacity="0.16" stroke="#c084fc"/>
+    <text x="461" y="599" class="pill" fill="#d8b4fe">Indexer: trainable</text>
+
+    <rect x="426" y="642" width="378" height="174" rx="14" class="inner"/>
+    <text x="446" y="668" class="lane">SUPERVISION</text>
+    <text x="446" y="704" class="formula">p = normalize(sum_h attention_h)</text>
+    <text x="446" y="738" class="formula">q = softmax(indexer scores)</text>
+    <rect x="446" y="760" width="244" height="34" rx="9" fill="#c084fc" opacity="0.12" stroke="#c084fc"/>
+    <text x="462" y="783" class="formula" fill="#e9d5ff">Indexer loss = KL(p || q)</text>
+  </g>
+
+  <!-- Stage 2 -->
+  <g filter="url(#shadow)">
+    <rect x="845" y="220" width="535" height="620" rx="22" class="card"/>
+    <rect x="866" y="244" width="164" height="28" rx="14" fill="#34d399" opacity="0.15" stroke="#34d399"/>
+    <text x="882" y="264" class="phase" fill="#6ee7b7">STAGE 2 · 15K STEPS</text>
+    <text x="866" y="310" class="heading">Sparse Continued Pre-training</text>
+    <text x="866" y="339" class="small">943.7B tokens · learning rate 7.3e−6 · top-k = 2048</text>
+
+    <rect x="866" y="375" width="493" height="97" rx="14" class="inner"/>
+    <text x="886" y="401" class="lane">ATTENTION MODE</text>
+    <text x="886" y="439" class="metric" fill="#6ee7b7">Fine-grained sparse MLA</text>
+    <text x="886" y="461" class="small">Indexer selects KV tokens independently for every query</text>
+
+    <rect x="866" y="488" width="493" height="138" rx="14" class="inner"/>
+    <text x="886" y="514" class="lane">TRAINABLE, BUT OPTIMIZED SEPARATELY</text>
+    <rect x="886" y="535" width="154" height="30" rx="15" fill="#34d399" opacity="0.15" stroke="#34d399"/>
+    <text x="901" y="556" class="pill" fill="#6ee7b7">Main model: trainable</text>
+    <rect x="1051" y="535" width="141" height="30" rx="15" fill="#c084fc" opacity="0.16" stroke="#c084fc"/>
+    <text x="1066" y="556" class="pill" fill="#d8b4fe">Indexer: trainable</text>
+    <text x="886" y="598" class="small">Indexer input is detached from the backbone graph</text>
+    <path d="M1210 580 h126" stroke="#fb7185" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="1214" y="603" class="small" fill="#fda4af">gradient boundary</text>
+
+    <rect x="866" y="642" width="493" height="174" rx="14" class="inner"/>
+    <text x="886" y="668" class="lane">TWO INDEPENDENT TRAINING SIGNALS</text>
+    <rect x="886" y="691" width="209" height="93" rx="12" fill="#34d399" opacity="0.09" stroke="#34d399"/>
+    <text x="903" y="719" class="subheading" fill="#6ee7b7">Language modeling loss</text>
+    <text x="903" y="748" class="body">→ Main model + MLA</text>
+    <text x="903" y="772" class="small">Adapts to sparse context</text>
+    <rect x="1110" y="691" width="229" height="93" rx="12" fill="#c084fc" opacity="0.09" stroke="#c084fc"/>
+    <text x="1127" y="719" class="subheading" fill="#d8b4fe">Selected-set KL loss</text>
+    <text x="1127" y="748" class="body">→ Indexer only</text>
+    <text x="1127" y="772" class="small">Maintains token recall</text>
+  </g>
+
+  <!-- Stage 3 -->
+  <g filter="url(#shadow)">
+    <rect x="1400" y="220" width="345" height="620" rx="22" class="card"/>
+    <rect x="1421" y="244" width="128" height="28" rx="14" fill="#f472b6" opacity="0.15" stroke="#f472b6"/>
+    <text x="1437" y="264" class="phase" fill="#f9a8d4">STAGE 3</text>
+    <text x="1421" y="310" class="heading">Sparse Post-training</text>
+    <text x="1421" y="339" class="small">DSA stays enabled end-to-end</text>
+
+    <rect x="1421" y="375" width="303" height="97" rx="14" class="inner"/>
+    <text x="1441" y="401" class="lane">ATTENTION MODE</text>
+    <text x="1441" y="439" class="metric" fill="#f9a8d4">DSA top-k MLA</text>
+    <text x="1441" y="461" class="small">No return to dense attention</text>
+
+    <rect x="1421" y="488" width="303" height="138" rx="14" class="inner"/>
+    <text x="1441" y="514" class="lane">TRAINING PIPELINE</text>
+    <text x="1441" y="551" class="body">Specialist distillation</text>
+    <line x1="1441" y1="566" x2="1698" y2="566" class="divider"/>
+    <text x="1441" y="595" class="body">Mixed reinforcement learning</text>
+
+    <rect x="1421" y="642" width="303" height="174" rx="14" class="inner"/>
+    <text x="1441" y="668" class="lane">OPTIMIZATION RULE</text>
+    <text x="1441" y="704" class="body">Retain the sparse-stage</text>
+    <text x="1441" y="730" class="body">training behavior.</text>
+    <line x1="1441" y1="752" x2="1698" y2="752" class="divider"/>
+    <text x="1441" y="780" class="small">The deployed model has learned</text>
+    <text x="1441" y="802" class="small">under its inference-time sparsity.</text>
+  </g>
+
+  <!-- Inter-stage arrows -->
+  <path d="M385 530 H402" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M825 530 H842" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M1380 530 H1397" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- Bottom summary -->
+  <rect x="55" y="875" width="1690" height="166" rx="22" fill="#091525" stroke="#26364c" stroke-width="1.5"/>
+  <text x="82" y="907" class="lane">THE CRITICAL GRADIENT CONTRACT</text>
+
+  <rect x="82" y="930" width="286" height="72" rx="14" fill="#34d399" opacity="0.1" stroke="#34d399"/>
+  <text x="103" y="958" class="subheading" fill="#6ee7b7">LM / task loss</text>
+  <text x="103" y="986" class="body">updates the main model</text>
+  <path d="M370 966 H530" stroke="#38bdf8" stroke-width="3" marker-end="url(#arrowCyan)"/>
+  <rect x="544" y="930" width="292" height="72" rx="14" fill="#38bdf8" opacity="0.1" stroke="#38bdf8"/>
+  <text x="565" y="958" class="subheading" fill="#7dd3fc">Sparse MLA backbone</text>
+  <text x="565" y="986" class="small">learns to use selected context</text>
+
+  <rect x="949" y="930" width="292" height="72" rx="14" fill="#c084fc" opacity="0.1" stroke="#c084fc"/>
+  <text x="970" y="958" class="subheading" fill="#d8b4fe">Indexer KL loss</text>
+  <text x="970" y="986" class="body">updates the indexer</text>
+  <path d="M1243 966 H1403" stroke="#c084fc" stroke-width="3" marker-end="url(#arrowPurple)"/>
+  <rect x="1417" y="930" width="300" height="72" rx="14" fill="#c084fc" opacity="0.1" stroke="#c084fc"/>
+  <text x="1438" y="958" class="subheading" fill="#d8b4fe">Lightning Indexer</text>
+  <text x="1438" y="986" class="small">tracks main-attention importance</text>
+
+  <line x1="876" y1="922" x2="876" y2="1011" stroke="#fb7185" stroke-width="3" stroke-dasharray="7 6"/>
+  <rect x="801" y="953" width="150" height="28" rx="14" fill="#fb7185"/>
+  <text x="822" y="973" class="pill" fill="#07111f">DETACH BOUNDARY</text>
+
+  <text x="56" y="1080" class="footer">Top-k selection is discrete: the language-modeling gradient does not train the indexer through selected indices.</text>
+  <text x="1744" y="1080" class="footer" text-anchor="end">Based on DeepSeek-V3.2 §2.1.1 · arXiv:2512.02556</text>
+</svg>
