@@ -168,6 +168,63 @@ Warp shuffles cannot cross a 32-lane warp boundary. For transforms that use mult
 
 The implementation uses XOR-adjusted shared-memory addresses to reduce bank conflicts. If the complete register tile does not fit in the configured shared-memory exchange buffer, the operation is divided into multiple chunk-exchange rounds.
 
+![Cross-warp FHT comparison: direct shared memory at every stage versus ownership transpose and register shuffles](./pictures/fht-cross-warp-smem-transpose-vs-direct-smem.png)
+
+#### Why transpose instead of direct shared-memory butterflies
+
+The transpose is not required for correctness. Every thread in a CTA can address the same shared-memory allocation, so a conceptual baseline can execute each cross-warp butterfly stage directly through shared memory:
+
+```text
+for each warp-XOR distance:
+    write the current registers to SMEM
+    CTA barrier
+    read (warp_id XOR distance, lane_id)
+    add / subtract into registers
+    CTA barrier before the next stage overwrites SMEM
+```
+
+The difficulty is not accessibility but dependency. Stage $s+1$ consumes the results of stage $s$, so the intermediate values must be published and synchronized again at every warp-XOR distance. Shared-memory visibility alone does not remove those CTA-wide ordering requirements.
+
+The optimized design instead uses shared memory as an ownership-exchange station. It writes with the original `(warp_id, lane_id)` coordinates and directly reads the same buffer with transposed coordinates. That read is the transpose: there is no separate transpose instruction or second persistent matrix. Once the read completes, the values are back in each thread's `x_reg`, but the old warp-ID bits now occupy lane-ID positions inside a physical warp:
+
+```text
+canonical registers
+    → SMEM write / transposed read
+transposed registers
+    → SHFL.XOR butterflies for every cross-warp stage
+transposed registers
+    → SMEM write / inverse-transposed read
+canonical registers
+```
+
+For $W$ participating warps, define one SMEM round trip as one write-plus-read exchange. Per exchange slice, the conceptual costs are
+
+```math
+R_{\mathrm{direct}} = \log_2 W,
+\qquad
+R_{\mathrm{transpose}} = 2,
+```
+
+and, with a barrier protecting both publication and reuse in the conceptual direct implementation,
+
+```math
+B_{\mathrm{direct}} \approx 2\log_2 W,
+\qquad
+B_{\mathrm{transpose}} \approx 4.
+```
+
+The exact instruction and barrier counts depend on scheduling, vector width, exchange-buffer reuse, and how many chunk slices fit in SMEM, but the scaling distinction remains useful:
+
+| Participating warps $W$ | Direct SMEM round trips | Transpose round trips | Register-shuffle stages after transpose |
+|---:|---:|---:|---:|
+| 2 | 1 | 2 | 1 |
+| 4 | 2 | 2 | 2 |
+| 8 | 3 | 2 | 3 |
+
+This is why the transpose design becomes more attractive as the warp count grows. Its SMEM exchange cost is fixed at the boundaries, while all $\log_2 W$ butterfly stages operate register-to-register through `SHFL.XOR`. The inverse exchange then restores canonical ownership so the existing global-store mapping remains valid. The XOR swizzle in the SMEM addresses is a separate optimization: it makes the ownership transpose bank-friendly; it does not perform any Hadamard arithmetic.
+
+The comparison should not be read as a measured speedup for a separate direct-SMEM kernel. At two warps, a single direct SMEM stage can be cheaper than two transpose round trips; at four warps, the round-trip counts are equal. The current power-of-two mapping uses four warps at `D=1024` and eight warps from `D=2048` upward, where reusing the warp-shuffle path is structurally well matched. A direct-SMEM specialization for the smallest multi-warp case remains a valid benchmark candidate.
+
 ### 3.4 Cross-chunk butterflies
 
 For large dimensions, each thread owns more than one chunk. The remaining $H_{n_{\text{chunks}}}$ factor is local to that thread and can therefore be implemented with register arithmetic alone.
