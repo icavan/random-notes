@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FA4 Deterministic Backward — Semaphore Protocol</title>
+<style>
+  :root {
+    --ink:#172033; --muted:#58647a; --paper:#f6f8fc; --card:#ffffff;
+    --blue:#2864dc; --blue2:#eaf1ff; --cyan:#2f91a5; --cyan2:#e7f7fa;
+    --green:#1f8a61; --green2:#e7f7f0; --amber:#c87b16; --amber2:#fff4df;
+    --red:#c74747; --red2:#fff0f0; --line:#d9e0ec; --dark:#101827;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#dfe5ef;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  body{padding:12px}
+  .page{width:1600px;min-height:1180px;margin:0;background:var(--paper);border-radius:28px;box-shadow:0 25px 70px rgba(22,35,60,.20);overflow:hidden;zoom:.70}
+  header{padding:48px 56px 30px;background:linear-gradient(120deg,#111a2c 0%,#18345f 58%,#18576b 100%);color:white;position:relative}
+  header:after{content:"";position:absolute;right:-60px;top:-110px;width:430px;height:430px;border:1px solid rgba(255,255,255,.13);border-radius:50%;box-shadow:0 0 0 55px rgba(255,255,255,.035),0 0 0 110px rgba(255,255,255,.025)}
+  .eyebrow{font-size:17px;text-transform:uppercase;letter-spacing:.18em;color:#9edced;font-weight:750}
+  h1{font-size:48px;line-height:1.05;margin:10px 0 12px;letter-spacing:-.035em}
+  header p{font-size:22px;line-height:1.4;margin:0;color:#d7e6f6;max-width:1080px}
+  .badge{display:inline-flex;align-items:center;gap:9px;margin-top:22px;padding:9px 14px;border-radius:999px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.19);font-size:15px;color:#e9f3ff}
+  .dot{width:9px;height:9px;border-radius:50%;background:#5de0b6;box-shadow:0 0 0 4px rgba(93,224,182,.15)}
+  main{padding:30px 42px 22px}
+  .grid{display:grid;grid-template-columns:1.45fr .85fr;gap:22px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 7px 20px rgba(30,50,85,.055);padding:24px}
+  .card h2{font-size:22px;margin:0 0 5px;letter-spacing:-.015em}
+  .kicker{font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:800;margin-bottom:5px}
+  .sub{color:var(--muted);font-size:15px;line-height:1.4;margin:0 0 18px}
+  .protocol{grid-column:1 / -1;padding:26px 28px}
+  .rank-row{display:grid;grid-template-columns:175px 1fr 56px 1fr 56px 1fr;align-items:center;gap:14px;margin:20px 0 24px}
+  .rank-label{font-weight:800;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+  .cta{border-radius:15px;padding:16px 18px;border:1px solid #b9caec;background:var(--blue2);min-height:86px}
+  .cta.active{background:linear-gradient(135deg,#2764db,#1f7d9e);color:#fff;border-color:transparent;box-shadow:0 9px 22px rgba(40,100,220,.20)}
+  .cta b{display:block;font-size:18px;margin-bottom:6px}
+  .cta span{font-size:14px;line-height:1.35;color:#445675}
+  .cta.active span{color:#e6f5ff}
+  .arrow{font-size:29px;text-align:center;color:#8091ad;font-weight:700}
+  .timeline{display:grid;grid-template-columns:155px repeat(6,1fr);border:1px solid var(--line);border-radius:15px;overflow:hidden}
+  .lane,.cell{min-height:76px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 12px;position:relative}
+  .timeline>*:nth-last-child(-n+7){border-bottom:none}
+  .timeline>*:nth-child(7n){border-right:none}
+  .lane{background:#f7f9fd;font-weight:780;font-size:14px;display:flex;align-items:center;color:#3b4960}
+  .cell{font-size:13px;line-height:1.28;color:#3f4d63;background:white;display:flex;align-items:center;justify-content:center;text-align:center}
+  .cell strong{display:block;color:var(--ink);font-size:13px}
+  .op-blue{background:var(--blue2);box-shadow:inset 0 3px 0 var(--blue)}
+  .op-green{background:var(--green2);box-shadow:inset 0 3px 0 var(--green)}
+  .op-amber{background:var(--amber2);box-shadow:inset 0 3px 0 var(--amber)}
+  .op-cyan{background:var(--cyan2);box-shadow:inset 0 3px 0 var(--cyan)}
+  .wait{background:repeating-linear-gradient(135deg,#eef3fb,#eef3fb 8px,#e3eaf6 8px,#e3eaf6 16px)}
+  .sem{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:800;color:#173f8f}
+  .legend{display:flex;gap:18px;align-items:center;margin-top:14px;color:var(--muted);font-size:13px;flex-wrap:wrap}
+  .legend span:before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px;background:var(--blue)}
+  .legend span:nth-child(2):before{background:var(--green)} .legend span:nth-child(3):before{background:var(--amber)} .legend span:nth-child(4):before{background:var(--cyan)}
+  .hb{padding:24px}
+  .hb-flow{display:grid;grid-template-columns:1fr 44px 1fr 44px 1fr 44px 1fr;align-items:stretch;margin-top:18px}
+  .hb-box{border-radius:14px;padding:18px 14px;text-align:center;border:1px solid var(--line);min-height:120px;display:flex;flex-direction:column;justify-content:center}
+  .hb-box b{font-size:15px;margin-bottom:8px}.hb-box small{font-size:12px;line-height:1.35;color:var(--muted)}
+  .hb-arr{display:flex;align-items:center;justify-content:center;color:#71829f;font-size:25px}
+  .hb-note{margin-top:18px;background:#f2f6fc;border-radius:12px;padding:13px 15px;font-size:14px;color:#46546b;line-height:1.4}
+  .hb-note b{color:var(--ink)}
+  .semantics{padding:24px}
+  .pill{border-radius:13px;padding:14px 16px;margin-top:12px;border:1px solid var(--line);display:grid;grid-template-columns:100px 1fr;gap:13px;align-items:start}
+  .pill b{font-size:14px}.pill div{font-size:13px;line-height:1.4;color:#47556c}
+  .pill.good{background:var(--green2);border-color:#bee3d3}.pill.bad{background:var(--red2);border-color:#f0cccc}.pill.neutral{background:var(--blue2);border-color:#c8d8f5}
+  .pill code{font-size:12px;background:rgba(255,255,255,.8);padding:2px 5px;border-radius:5px}
+  .bottom{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+  .code{background:var(--dark);color:#dbe8ff;border-radius:15px;padding:18px 20px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;line-height:1.55;white-space:pre}
+  .code .c{color:#7686a5}.code .a{color:#7fd6ee}.code .r{color:#77ddb8}.code .w{color:#ffc978}
+  .checks{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:15px}
+  .check{border:1px solid var(--line);background:#fbfcfe;border-radius:11px;padding:11px 12px;font-size:13px;line-height:1.35;color:#48566d}
+  .check b{display:block;color:var(--ink);margin-bottom:3px}
+  .num{display:inline-flex;width:21px;height:21px;border-radius:50%;background:#213b6b;color:white;align-items:center;justify-content:center;font-size:12px;margin-right:6px}
+  footer{padding:0 44px 28px;color:#6a7689;font-size:12px;line-height:1.5}
+  footer b{color:#3b4658}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="eyebrow">FlashAttention-4 · SM100 backward</div>
+    <h1>Deterministic Reduction via an Ordered Semaphore</h1>
+    <p>FA4 keeps the FP32 global reduction, but forces every contributing CTA to enter in a predetermined arithmetic order.</p>
+    <div class="badge"><span class="dot"></span> Same kernel specialization + same device/configuration → repeatable reduction order</div>
+  </header>
+
+  <main>
+    <section class="card protocol">
+      <div class="kicker">The ordering contract</div>
+      <h2>One counting semaphore per contended gradient tile</h2>
+      <p class="sub">The counter is a ticket dispenser in reverse: each CTA already owns a unique rank and waits until the counter equals that rank.</p>
+
+      <div class="rank-row">
+        <div class="rank-label">Predetermined writers</div>
+        <div class="cta"><b>CTA rank r − 1</b><span>Finishes its FP32 contribution, then publishes the next ticket.</span></div>
+        <div class="arrow">→</div>
+        <div class="cta active"><b>CTA rank r · OWNER</b><span>May update the tile only when <strong>semaphore == r</strong>.</span></div>
+        <div class="arrow">→</div>
+        <div class="cta"><b>CTA rank r + 1</b><span>Can arrive early, but must spin until its exact ticket appears.</span></div>
+      </div>
+
+      <div class="timeline">
+        <div class="lane">Owner</div><div class="cell"><strong>1 · Produce</strong></div><div class="cell"><strong>2 · Publish</strong></div><div class="cell"><strong>3 · Acquire</strong></div><div class="cell"><strong>4 · Reduce</strong></div><div class="cell"><strong>5 · Drain</strong></div><div class="cell"><strong>6 · Release</strong></div>
+        <div class="lane">CTA rank r − 1</div><div class="cell op-blue">local partial<br>gradient</div><div class="cell op-amber">async global<br>reduce</div><div class="cell op-amber">wait until async<br>writes complete</div><div class="cell op-green"><span><strong>release add</strong><span class="sem">sem: r−1 → r</span></span></div><div class="cell"></div><div class="cell"></div>
+        <div class="lane">CTA rank r</div><div class="cell wait">arrived early<br>but not owner</div><div class="cell wait"><span><strong>spin</strong><span class="sem">load_acquire(sem) != r</span></span></div><div class="cell op-cyan"><span><strong>acquire succeeds</strong><span class="sem">sem == r</span></span></div><div class="cell op-blue">CTA sync, then<br>ordered FP32 add</div><div class="cell op-amber">wait for bulk<br>reduce completion</div><div class="cell op-green"><span><strong>release add</strong><span class="sem">sem: r → r+1</span></span></div>
+        <div class="lane">CTA rank r + 1</div><div class="cell wait">may already<br>be resident</div><div class="cell wait"></div><div class="cell wait"><span><strong>still spins</strong><span class="sem">sem != r+1</span></span></div><div class="cell wait"></div><div class="cell wait"></div><div class="cell op-cyan">acquire succeeds;<br>next fixed writer</div>
+      </div>
+      <div class="legend"><span>local / arithmetic work</span><span>ownership hand-off</span><span>async completion boundary</span><span>acquire observation</span></div>
+    </section>
+
+    <div class="grid" style="margin-top:22px">
+      <section class="card hb">
+        <div class="kicker">Memory-order semantics</div>
+        <h2>The required happens-before chain</h2>
+        <p class="sub">The semaphore is a different address from the gradient workspace, so counter atomicity alone is not enough.</p>
+        <div class="hb-flow">
+          <div class="hb-box" style="background:var(--amber2)"><b>Prior CTA data writes</b><small>including asynchronous global reduction</small></div><div class="hb-arr">→</div>
+          <div class="hb-box" style="background:var(--green2)"><b>Release RMW</b><small><code>red.release.gpu.global.add</code></small></div><div class="hb-arr">⇢</div>
+          <div class="hb-box" style="background:var(--cyan2)"><b>Acquire load</b><small><code>ld.global.acquire.gpu</code> observes the ticket</small></div><div class="hb-arr">→</div>
+          <div class="hb-box" style="background:var(--blue2)"><b>Next CTA data access</b><small>the next ordered FP32 contribution</small></div>
+        </div>
+        <div class="hb-note"><b>Device/GPU scope is required.</b> Release publishes completed gradient writes; acquire makes them visible before the next owner starts. The chain repeats transitively for every rank.</div>
+      </section>
+
+      <section class="card semantics">
+        <div class="kicker">What it is — and is not</div>
+        <h2>Ticket protocol, not CAS contention</h2>
+        <div class="pill good"><b>FA4 protocol</b><div>Wait for an <em>exact predetermined rank</em>, reduce, drain, then increment. Arithmetic order is fixed across launches.</div></div>
+        <div class="pill bad"><b>CAS mutex</b><div><code>CAS(free → locked)</code> gives ownership to whichever CTA wins the race. Mutual exclusion alone does not make floating-point order deterministic.</div></div>
+        <div class="pill bad"><b>Relaxed only</b><div>Keeps the counter atomic, but does not publish gradient writes at another address. A successor could observe the ticket without the required data visibility.</div></div>
+        <div class="pill neutral"><b>Equivalent option</b><div>Relaxed atomics plus correctly paired device-scope release/acquire fences can work—but that reconstructs the same ordering semantics explicitly.</div></div>
+      </section>
+    </div>
+
+    <div class="bottom">
+      <section class="card">
+        <div class="kicker">Minimal protocol</div>
+        <h2>Per CTA writer rank r</h2>
+        <div class="code"><span class="c">// elected thread</span>
+<span class="a">while (load_acquire_gpu(sem[tile]) != r) { }</span>
+cta_sync();
+
+ordered_fp32_reduce(grad[tile], partial);
+cta_sync();
+<span class="w">wait_all_async_global_writes();</span>
+
+<span class="r">atomic_add_release_gpu(sem[tile], 1);</span></div>
+      </section>
+
+      <section class="card">
+        <div class="kicker">FA4 placement & invariants</div>
+        <h2>Where the protocol applies</h2>
+        <div class="checks">
+          <div class="check"><b><span class="num">1</span>dQ accumulation</b>Writers are ordered by the KV-block contribution rank for each query tile.</div>
+          <div class="check"><b><span class="num">2</span>GQA dK / dV</b>Query heads sharing one KV head require ordered contributions; FA4 uses separate K/V semaphore paths.</div>
+          <div class="check"><b><span class="num">3</span>Contiguous tickets</b>Every expected rank must arrive. Masked or sparse writers need a remapped order or bridge increment.</div>
+          <div class="check"><b><span class="num">4</span>Forward progress</b>The tile scheduler aligns launch order with tickets to reduce spinning and occupancy starvation.</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <b>Source-audited against FA4 commit 0251105a.</b> Barrier primitives: <code>flash_attn/cute/barrier.py:8–70</code>. dQ ordered reducer: <code>flash_bwd_sm100.py:3718–3825</code>. GQA dK/dV ordered reducer: <code>flash_bwd_sm100.py:4054–4169</code>. Representative specialization: SM100/B200, dense causal GQA, BF16 inputs, FP32 accumulation, M128×N128, 2-CTA cluster. Determinism claim is scoped to the same kernel specialization, hardware, and configuration—not cross-architecture reproducibility.
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FA4 dQ vs cuDNN DSA dKV — Reduction Path Selection</title>
+<style>
+  :root{--ink:#142033;--muted:#5c687b;--paper:#f4f7fb;--card:#fff;--line:#d9e1ec;--fa:#2563d8;--fa2:#e9f0ff;--dsa:#8b4ac7;--dsa2:#f3eafe;--green:#19825d;--green2:#e8f6f0;--amber:#c97712;--amber2:#fff3df;--red:#be4545;--red2:#fff0f0;--navy:#111c30}
+  *{box-sizing:border-box}html,body{margin:0;background:#dfe5ef;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  body{padding:18px}.page{width:1400px;height:1150px;margin:0 auto;background:var(--paper);border-radius:26px;overflow:hidden;box-shadow:0 24px 70px rgba(24,39,67,.18)}
+  header{height:170px;padding:34px 44px;background:linear-gradient(120deg,#111a2c,#173965 58%,#364064);color:white;position:relative}
+  header:after{content:"";position:absolute;right:-60px;top:-135px;width:420px;height:420px;border-radius:50%;border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 50px rgba(255,255,255,.035),0 0 0 100px rgba(255,255,255,.022)}
+  .eyebrow{font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#9fd9ec;font-size:13px}.title{font-size:38px;line-height:1.08;letter-spacing:-.035em;font-weight:800;margin:7px 0 7px}.subtitle{font-size:17px;color:#dce9f6;max-width:1030px;line-height:1.4}.scope{position:absolute;right:38px;bottom:24px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.17);padding:8px 13px;border-radius:999px;font-size:12px;color:#eaf4ff}
+  main{padding:18px 24px 14px}.decision{height:78px;border:1px solid var(--line);background:white;border-radius:16px;display:grid;grid-template-columns:1fr 90px 1fr;align-items:center;padding:12px 22px;box-shadow:0 5px 14px rgba(27,46,78,.05)}
+  .decision .q{text-align:center;font-size:18px;font-weight:780}.decision .q small{display:block;color:var(--muted);font-weight:500;font-size:12px;margin-top:4px}.split{text-align:center;font-weight:900;color:#7d8ca4;font-size:20px}.yes,.no{display:inline-block;border-radius:999px;padding:5px 10px;margin-right:8px;color:white;font-size:11px;letter-spacing:.08em;text-transform:uppercase}.yes{background:var(--fa)}.no{background:var(--dsa)}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}.panel{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 6px 18px rgba(27,46,78,.05)}.panel-head{height:84px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}.fa .panel-head{background:linear-gradient(135deg,#1f5fd2,#2787a2);color:white}.dsa .panel-head{background:linear-gradient(135deg,#7139ad,#a657b6);color:white}.panel-head h2{font-size:23px;margin:0 0 3px}.panel-head p{margin:0;font-size:13px;color:rgba(255,255,255,.85)}.tag{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(255,255,255,.3);padding:7px 9px;border-radius:9px;background:rgba(255,255,255,.10)}
+  .body{padding:14px 17px}.mapping{display:grid;grid-template-columns:1fr 34px 1fr;gap:8px;align-items:center;margin-bottom:12px}.mapbox{border:1px solid var(--line);border-radius:11px;padding:10px;text-align:center;min-height:55px;background:#fafcff}.mapbox b{display:block;font-size:13px}.mapbox small{font-size:11px;color:var(--muted)}.maparr{text-align:center;color:#7e8da4;font-size:21px}.fa .mapbox.accent{background:var(--fa2);border-color:#bfd0f5}.dsa .mapbox.accent{background:var(--dsa2);border-color:#dbc4ed}
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;align-items:stretch}.step{position:relative;border-radius:10px;padding:10px 8px;border:1px solid var(--line);text-align:center;min-height:78px;background:#fbfcfe;font-size:11px;line-height:1.25}.step b{display:block;font-size:12px;margin-bottom:5px}.step code{font-size:10px;color:#30415f}.step:not(:last-child):after{content:"›";position:absolute;right:-8px;top:27px;color:#8b9ab0;font-weight:900;font-size:20px;z-index:2}.fa .step.key{background:var(--fa2);border-color:#bfd0f5}.dsa .step.key{background:var(--dsa2);border-color:#dbc4ed}.step.green{background:var(--green2);border-color:#bfe0d2}.step.amber{background:var(--amber2);border-color:#efd6ab}
+  .why{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.whybox{border-radius:11px;padding:10px 11px;font-size:11px;line-height:1.35;border:1px solid var(--line);background:#fafcff}.whybox b{display:block;font-size:12px;margin-bottom:4px}.fa .whybox b{color:var(--fa)}.dsa .whybox b{color:var(--dsa)}
+  .matrix{margin-top:14px;background:white;border:1px solid var(--line);border-radius:17px;overflow:hidden}.matrix h3{margin:0;padding:13px 18px 10px;font-size:16px}.table{display:grid;grid-template-columns:230px 1fr 1fr}.th,.td{border-top:1px solid var(--line);border-right:1px solid var(--line);padding:8px 11px;min-height:43px;font-size:11px;line-height:1.25;display:flex;align-items:center}.table>*:nth-child(3n){border-right:none}.th{font-weight:800;background:#f7f9fc}.th.fah{color:var(--fa);background:var(--fa2)}.th.dsah{color:var(--dsa);background:var(--dsa2)}.good{color:#116848;background:#eff9f4}.bad{color:#9b3434;background:#fff5f5}.maybe{color:#8a5a13;background:#fff9ed}.mark{font-weight:900;margin-right:7px;font-size:14px}
+  .orthogonal{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-top:14px}.note{border-radius:15px;padding:13px 16px;border:1px solid var(--line);background:white;min-height:90px}.note h4{font-size:14px;margin:0 0 7px}.note p{font-size:11px;color:#4d5a70;line-height:1.45;margin:0}.hb{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:10px;font-weight:700}.chip{padding:6px 8px;border-radius:8px;background:var(--green2);color:#176b4e;border:1px solid #bfdfd2}.arrow{color:#7889a2;font-size:17px}.bench{background:var(--navy);color:#e9f2ff;border:none}.bench h4{color:#9fd8ee}.bench p{color:#c9d6e7}.bench strong{color:#ffcf7a}
+  footer{height:30px;padding:7px 27px;color:#6a7689;font-size:9.5px;display:flex;justify-content:space-between}.src{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="eyebrow">SM100 backward reduction-path audit</div>
+    <div class="title">FA4 Deterministic dQ vs cuDNN DSA dKV</div>
+    <div class="subtitle">The best global-reduction primitive follows the output address geometry. Deterministic ordering is a separate protocol layered on top.</div>
+    <div class="scope">BF16 inputs · FP32 workspaces · B200 / SM100</div>
+  </header>
+  <main>
+    <section class="decision">
+      <div class="q"><span class="yes">Yes</span>One CTA contribution maps to a contiguous output tile<small>Dense address map · bulk transfer can amortize staging and issue cost</small></div>
+      <div class="split">OR</div>
+      <div class="q"><span class="no">No</span>Rows are selected through arbitrary top-k indices<small>Sparse scatter map · each destination row needs an independent address</small></div>
+    </section>
+
+    <div class="cols">
+      <section class="panel fa">
+        <div class="panel-head"><div><h2>FA4 deterministic dQ</h2><p>Dense query tile → dense FP32 dQaccum tile</p></div><div class="tag">Bulk path fits</div></div>
+        <div class="body">
+          <div class="mapping"><div class="mapbox"><b>CTA contribution</b><small>fixed M-block × head-dim tile</small></div><div class="maparr">→</div><div class="mapbox accent"><b>Contiguous destination</b><small>gdQaccum[m_block, stage]</small></div></div>
+          <div class="flow">
+            <div class="step"><b>TMEM</b>FP32 dQ accumulator</div>
+            <div class="step"><b>T2R + R2S</b>build contiguous <code>sdQaccum</code></div>
+            <div class="step key"><b>Ticket acquire</b><code>sem == fixed rank</code></div>
+            <div class="step green"><b>Bulk reduce</b><code>cp.reduce.async.bulk.add.f32</code></div>
+            <div class="step amber"><b>Drain + release</b>wait group 0; release increment</div>
+          </div>
+          <div class="why">
+            <div class="whybox"><b>Why it wins</b>One issuing warp amortizes a large, contiguous SMEM→GMEM reduction and can pipeline async groups.</div>
+            <div class="whybox"><b>What determinism adds</b>Acquire/release ticket semaphore fixes the inter-CTA FP32 addition order; bulk reduce alone does not.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel dsa">
+        <div class="panel-head"><div><h2>cuDNN DSA dKV</h2><p>Query-centric CTA → random top-k KV rows</p></div><div class="tag">Vector atomic fits</div></div>
+        <div class="body">
+          <div class="mapping"><div class="mapbox"><b>CTA contribution</b><small>64 local top-k positions × D=576</small></div><div class="maparr">→</div><div class="mapbox accent"><b>Scattered destinations</b><small>row address = dKV[topk_idx[i]]</small></div></div>
+          <div class="flow">
+            <div class="step"><b>TMEM</b>FP32 dKV accumulators</div>
+            <div class="step"><b>T2R</b>lane-distributed register fragments</div>
+            <div class="step key"><b>Free TMEM early</b>T2R-done barrier permits overwrite</div>
+            <div class="step"><b>Address scatter</b>lookup random <code>topk_idx</code></div>
+            <div class="step green"><b>Vector reduction</b><code>red.global.v4.f32</code></div>
+          </div>
+          <div class="why">
+            <div class="whybox"><b>Why it wins</b>Registers can reduce directly to arbitrary global rows; no SMEM remap, proxy fence, or per-row bulk staging.</div>
+            <div class="whybox"><b>Why bulk loses here</b>Each random row still needs a separate operation, while R2S layout conversion extends an already tight SMEM/TMEM lifetime.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="matrix">
+      <h3>Technical-option suitability</h3>
+      <div class="table">
+        <div class="th">Option</div><div class="th fah">FA4 deterministic dQ</div><div class="th dsah">cuDNN DSA dKV</div>
+        <div class="th">Async bulk reduce</div><div class="td good"><span class="mark">✓</span>Natural fit: contiguous SMEM source and dense GMEM tile.</div><div class="td bad"><span class="mark">×</span>Random rows require R2S staging plus one bulk issue per destination row.</div>
+        <div class="th">Register vector global reduction</div><div class="td maybe"><span class="mark">△</span>Correct, but gives up the dense-tile bulk engine and async staging pipeline.</div><div class="td good"><span class="mark">✓</span>Natural fit: lane fragments already in RMEM; arbitrary row addresses.</div>
+        <div class="th">Ordinary non-atomic store</div><div class="td bad"><span class="mark">×</span>Illegal while multiple KV-block CTAs contribute to the same dQ tile.</div><div class="td bad"><span class="mark">×</span>Illegal while many query CTAs select the same KV row.</div>
+        <div class="th">Unique-owner / key-centric schedule</div><div class="td maybe"><span class="mark">△</span>Possible redesign, but current query/KV-block schedule already serves dQ efficiently.</div><div class="td maybe"><span class="mark">△</span>Eliminates atomics in theory; needs reverse index and much larger owner-side accumulation.</div>
+        <div class="th">Acquire/release ticket semaphore</div><div class="td good"><span class="mark">✓</span>Practical: contributor ranks per dense tile are known and contiguous.</div><div class="td maybe"><span class="mark">△</span>Harder: sparse per-row writer sets/ranks are data-dependent without preprocessing.</div>
+      </div>
+    </section>
+
+    <div class="orthogonal">
+      <section class="note">
+        <h4>Determinism is orthogonal to the transport primitive</h4>
+        <p>Both bulk reduce and <code>red.global</code> can produce run-to-run FP32 order variation when multiple CTAs update the same location. FA4 adds an explicit ownership chain:</p>
+        <div class="hb"><span class="chip">prior data writes</span><span class="arrow">→</span><span class="chip">release increment</span><span class="arrow">⇢</span><span class="chip">acquire exact rank</span><span class="arrow">→</span><span class="chip">next reduction</span></div>
+      </section>
+      <section class="note bench">
+        <h4>DSA B200 evidence</h4>
+        <p>Even for contiguous row runs, bulk reduce was only <strong>~2.4% faster at 2 rows</strong>; 1/4/8 rows were near parity and 16 rows were slower. That primitive-level margin cannot pay for real-kernel SMEM remap, barriers, and sparse-row issue overhead.</p>
+      </section>
+    </div>
+  </main>
+  <footer><span>Decision rule: <b>dense contiguous tile → bulk engine</b>; <b>sparse scattered rows → register vector reduction</b>.</span><span class="src">FA4 0251105a · cuDNN FE 73d8feb4 · audit manifest: 2 pipelines / 18 events</span></footer>
+</div>
+</body>
+</html>
