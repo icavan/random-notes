@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-labelledby="title desc">
+  <title id="title">Why loss choice changes temperature sensitivity</title>
+  <desc id="desc">A two-panel comparison showing that hard-label cross entropy learns the winning token but mismatches the target probability distribution, while L1 total-variation matching preserves high speculative decoding acceptance as sampling temperature rises.</desc>
+
+  <rect width="1400" height="820" fill="#ffffff"/>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #1a1c1f; }
+    .title { font-size: 32px; font-weight: 600; }
+    .subtitle { font-size: 17px; fill: #6b7280; }
+    .panel-title { font-size: 22px; font-weight: 600; }
+    .axis { font-size: 14px; fill: #6b7280; }
+    .axis-title { font-size: 15px; font-weight: 600; }
+    .series-label { font-size: 15px; font-weight: 600; }
+    .annotation { font-size: 14px; fill: #6b7280; }
+    .detail { font-size: 17px; }
+    .grid { stroke: #e6e8eb; stroke-width: 1; }
+    .frame { fill: none; stroke: #d6d9dd; stroke-width: 1; }
+  </style>
+
+  <text class="title" x="60" y="58">Why Loss Choice Changes Temperature Sensitivity</text>
+  <text class="subtitle" x="60" y="90">Hard-label CE learns the winner; L1 / TV learns the full target distribution.</text>
+
+  <g transform="translate(875 62)">
+    <rect x="0" y="-12" width="24" height="5" rx="2" fill="#339cff"/>
+    <text x="34" y="0" font-size="15">Target</text>
+    <rect x="124" y="-12" width="24" height="5" rx="2" fill="#f3883b"/>
+    <text x="158" y="0" font-size="15">Hard-label CE</text>
+    <rect x="306" y="-12" width="24" height="5" rx="2" fill="#5dc977"/>
+    <text x="340" y="0" font-size="15">L1 / TV</text>
+  </g>
+
+  <text class="panel-title" x="80" y="150">Probability mass at T = 0.70</text>
+  <text class="panel-title" x="760" y="150">Expected speculative acceptance</text>
+
+  <!-- Left panel: grouped target and draft probabilities at T = 0.70. -->
+  <g aria-label="Probability mass chart">
+    <rect class="frame" x="120" y="190" width="530" height="400"/>
+    <line class="grid" x1="120" y1="190" x2="650" y2="190"/>
+    <line class="grid" x1="120" y1="270" x2="650" y2="270"/>
+    <line class="grid" x1="120" y1="350" x2="650" y2="350"/>
+    <line class="grid" x1="120" y1="430" x2="650" y2="430"/>
+    <line class="grid" x1="120" y1="510" x2="650" y2="510"/>
+    <line class="grid" x1="120" y1="590" x2="650" y2="590"/>
+
+    <text class="axis" x="108" y="195" text-anchor="end">100%</text>
+    <text class="axis" x="108" y="275" text-anchor="end">80%</text>
+    <text class="axis" x="108" y="355" text-anchor="end">60%</text>
+    <text class="axis" x="108" y="435" text-anchor="end">40%</text>
+    <text class="axis" x="108" y="515" text-anchor="end">20%</text>
+    <text class="axis" x="108" y="595" text-anchor="end">0%</text>
+
+    <rect x="165" y="361.7" width="38" height="228.3" fill="#339cff"><title>Target token A: 57.1%</title></rect>
+    <rect x="207" y="203.8" width="38" height="386.2" fill="#f3883b"><title>Hard-label CE token A: 96.5%</title></rect>
+    <rect x="249" y="372.9" width="38" height="217.1" fill="#5dc977"><title>L1 / TV token A: 54.3%</title></rect>
+
+    <rect x="320" y="480.0" width="38" height="110.0" fill="#339cff"><title>Target token B: 27.5%</title></rect>
+    <rect x="362" y="577.8" width="38" height="12.2" fill="#f3883b"><title>Hard-label CE token B: 3.0%</title></rect>
+    <rect x="404" y="473.7" width="38" height="116.3" fill="#5dc977"><title>L1 / TV token B: 29.1%</title></rect>
+
+    <rect x="475" y="528.3" width="38" height="61.7" fill="#339cff"><title>Target token C: 15.4%</title></rect>
+    <rect x="517" y="588.3" width="38" height="1.7" fill="#f3883b"><title>Hard-label CE token C: 0.4%</title></rect>
+    <rect x="559" y="523.4" width="38" height="66.6" fill="#5dc977"><title>L1 / TV token C: 16.7%</title></rect>
+
+    <text class="axis" x="226" y="616" text-anchor="middle">A</text>
+    <text class="axis" x="381" y="616" text-anchor="middle">B</text>
+    <text class="axis" x="536" y="616" text-anchor="middle">C</text>
+    <text class="axis-title" x="385" y="646" text-anchor="middle">Candidate token</text>
+    <text class="axis-title" x="34" y="390" text-anchor="middle" transform="rotate(-90 34 390)">Probability</text>
+  </g>
+
+  <!-- Right panel: acceptance equals probability-distribution overlap. -->
+  <g aria-label="Expected speculative acceptance by temperature">
+    <rect class="frame" x="760" y="190" width="560" height="400"/>
+    <line class="grid" x1="760" y1="190" x2="1320" y2="190"/>
+    <line class="grid" x1="760" y1="270" x2="1320" y2="270"/>
+    <line class="grid" x1="760" y1="350" x2="1320" y2="350"/>
+    <line class="grid" x1="760" y1="430" x2="1320" y2="430"/>
+    <line class="grid" x1="760" y1="510" x2="1320" y2="510"/>
+    <line class="grid" x1="760" y1="590" x2="1320" y2="590"/>
+
+    <text class="axis" x="748" y="195" text-anchor="end">100%</text>
+    <text class="axis" x="748" y="275" text-anchor="end">90%</text>
+    <text class="axis" x="748" y="355" text-anchor="end">80%</text>
+    <text class="axis" x="748" y="435" text-anchor="end">70%</text>
+    <text class="axis" x="748" y="515" text-anchor="end">60%</text>
+    <text class="axis" x="748" y="595" text-anchor="end">50%</text>
+
+    <polyline points="760.0,190.0 788.0,190.0 816.0,194.9 844.0,217.4 872.0,254.7 900.0,297.4 928.0,339.0 956.0,376.3 984.0,408.4 1012.0,435.2 1040.0,457.0 1068.0,474.5 1096.0,488.1 1124.0,498.4 1152.0,505.7 1180.0,510.6 1208.0,513.4 1236.0,514.5 1264.0,514.1 1292.0,512.6 1320.0,510.0" fill="none" stroke="#f3883b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="760.0,190.0 788.0,190.1 816.0,195.3 844.0,206.7 872.0,216.3 900.0,221.7 928.0,223.7 956.0,223.6 984.0,222.4 1012.0,220.8 1040.0,219.0 1068.0,217.2 1096.0,215.4 1124.0,213.8 1152.0,212.4 1180.0,211.1 1208.0,209.8 1236.0,208.7 1264.0,207.7 1292.0,206.8 1320.0,206.0" fill="none" stroke="#5dc977" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <line x1="1152" y1="190" x2="1152" y2="590" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="6 6"/>
+    <circle cx="1152" cy="505.7" r="7" fill="#f3883b" stroke="#ffffff" stroke-width="3"><title>Hard-label CE acceptance at T 0.70: 60.5%</title></circle>
+    <circle cx="1152" cy="212.4" r="7" fill="#5dc977" stroke="#ffffff" stroke-width="3"><title>L1 / TV acceptance at T 0.70: 97.2%</title></circle>
+
+    <text class="series-label" x="1308" y="198" text-anchor="end">L1 / TV</text>
+    <text class="series-label" x="1308" y="534" text-anchor="end">Hard-label CE</text>
+    <text class="annotation" x="772" y="218">Greedy: only argmax matters</text>
+    <text class="annotation" x="1308" y="574" text-anchor="end">Sampling: full distribution matters</text>
+
+    <text class="axis" x="760" y="616" text-anchor="middle">0.0</text>
+    <text class="axis" x="872" y="616" text-anchor="middle">0.2</text>
+    <text class="axis" x="984" y="616" text-anchor="middle">0.4</text>
+    <text class="axis" x="1096" y="616" text-anchor="middle">0.6</text>
+    <text class="axis" x="1208" y="616" text-anchor="middle">0.8</text>
+    <text class="axis" x="1320" y="616" text-anchor="middle">1.0</text>
+    <text class="axis-title" x="1040" y="646" text-anchor="middle">Sampling temperature T</text>
+    <text class="axis-title" x="682" y="390" text-anchor="middle" transform="rotate(-90 682 390)">Expected acceptance</text>
+  </g>
+
+  <line x1="60" y1="682" x2="1340" y2="682" stroke="#e6e8eb"/>
+  <text class="detail" x="60" y="721">
+    <tspan font-weight="600">At T = 0.70</tspan>
+    <tspan fill="#6b7280"> · Token acceptance: </tspan>
+    <tspan fill="#f3883b" font-weight="600">CE 60.5%</tspan>
+    <tspan fill="#6b7280"> vs. </tspan>
+    <tspan fill="#5dc977" font-weight="600">L1 / TV 97.2%</tspan>
+    <tspan fill="#6b7280"> · Expected accepted prefix (4-token block): 1.33 vs. 3.73</tspan>
+  </text>
+  <text class="subtitle" x="60" y="765">Acceptance = 1 − ½ ‖pₜ − qₜ‖₁. L1 / TV directly minimizes the rejection mass exposed by sampling.</text>
+</svg>
