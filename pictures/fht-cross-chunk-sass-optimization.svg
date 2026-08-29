@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Why moving the cross-chunk butterfly earlier did not improve performance</title>
+  <desc id="desc">A clean white diagram contrasting the source-level optimization hypothesis, compiler SSA and register allocation, and the recorded SASS audit showing no MOV instructions to eliminate.</desc>
+  <metadata><![CDATA[
+  {"id":"fht-cross-chunk-sass-optimization","scope":"audited pow2 source variants and recorded SASS comparison","source_refs":["work/initial_cutedsl.txt:194","work/ling-fht/cutedsl/hadamard_transform.py:330","FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:486"],"assertions":["original source contained x_t register-tensor assignments","rewritten source folded H_n_chunks into the first local stage","recorded SASS audit found MOV count 0 in both variants","total/FADD/SHFL/LDG/STG instruction counts matched","neither variant spilled to local or stack memory"]}
+  ]]></metadata>
+  <defs>
+    <style>
+      text { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-weight: 400; fill: #1e293b; }
+      .title { font-size: 39px; fill: #0f172a; }
+      .subtitle { font-size: 20px; fill: #64748b; }
+      .section { font-size: 22px; fill: #0f172a; }
+      .label { font-size: 17px; }
+      .small { font-size: 14px; fill: #64748b; }
+      .tiny { font-size: 12px; fill: #64748b; }
+      .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 14px; }
+      .metric { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 18px; }
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#ffffff"/>
+  <text x="75" y="68" class="title">Why moving cross-chunk work earlier did not pay off</text>
+  <text x="75" y="104" class="subtitle">The proposed optimization removed a source-level copy that the compiler had already removed from the machine code.</text>
+
+  <!-- Column 1: hypothesis -->
+  <rect x="75" y="145" width="455" height="585" rx="20" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="105" y="187" class="section" fill="#1d4ed8">1 · Source-level hypothesis</text>
+
+  <text x="105" y="230" class="label">Original order</text>
+  <rect x="105" y="250" width="170" height="54" rx="10" fill="#ffffff" stroke="#93c5fd"/>
+  <text x="190" y="282" text-anchor="middle" class="small">local H_n_elts</text>
+  <path d="M275 277 H315" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="315" y="250" width="170" height="54" rx="10" fill="#ffffff" stroke="#93c5fd"/>
+  <text x="400" y="273" text-anchor="middle" class="small">warp / SMEM</text>
+  <text x="400" y="292" text-anchor="middle" class="tiny">cross-thread stages</text>
+  <path d="M400 307 V337" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="105" y="342" width="380" height="88" rx="10" fill="#dbeafe" stroke="#60a5fa"/>
+  <text x="125" y="370" class="mono">x_t[i,c] = x_reg[c,i]</text>
+  <text x="125" y="398" class="small">source-level register-tensor transpose / copy</text>
+  <text x="125" y="418" class="small">then apply H_n_chunks through x_t</text>
+
+  <text x="105" y="478" class="label">Rewritten order</text>
+  <rect x="105" y="498" width="380" height="64" rx="10" fill="#ffffff" stroke="#60a5fa"/>
+  <text x="295" y="524" text-anchor="middle" class="small">local H_n_elts + local H_n_chunks</text>
+  <text x="295" y="547" text-anchor="middle" class="tiny">both axes completed in x_reg</text>
+  <path d="M295 566 V596" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <rect x="105" y="600" width="380" height="54" rx="10" fill="#ffffff" stroke="#60a5fa"/>
+  <text x="295" y="633" text-anchor="middle" class="small">warp / SMEM cross-thread stages</text>
+
+  <rect x="105" y="676" width="380" height="34" rx="8" fill="#ffffff" stroke="#bfdbfe"/>
+  <text x="295" y="698" text-anchor="middle" class="small" fill="#1d4ed8">Expected: one less register copy / transpose</text>
+
+  <!-- Column 2: compiler -->
+  <rect x="570" y="145" width="430" height="585" rx="20" fill="#f5f3ff" stroke="#c4b5fd"/>
+  <text x="600" y="187" class="section" fill="#6d28d9">2 · What the compiler sees</text>
+
+  <rect x="600" y="230" width="160" height="62" rx="10" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="680" y="255" text-anchor="middle" class="label">logical value</text>
+  <text x="680" y="278" text-anchor="middle" class="mono">x_reg[c,i]</text>
+  <path d="M760 261 H810" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <rect x="810" y="230" width="160" height="62" rx="10" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="890" y="255" text-anchor="middle" class="label">logical value</text>
+  <text x="890" y="278" text-anchor="middle" class="mono">x_t[i,c]</text>
+
+  <text x="785" y="328" text-anchor="middle" class="small">SSA relation: the second name can refer to the same value</text>
+  <path d="M785 346 V382" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <rect x="600" y="390" width="370" height="170" rx="14" fill="#ede9fe" stroke="#a78bfa"/>
+  <text x="785" y="425" text-anchor="middle" class="label" fill="#6d28d9">Physical register allocation</text>
+  <g>
+    <rect x="630" y="458" width="66" height="54" rx="8" fill="#ffffff" stroke="#8b5cf6"/><text x="663" y="491" text-anchor="middle" class="mono">R20</text>
+    <rect x="711" y="458" width="66" height="54" rx="8" fill="#ffffff" stroke="#8b5cf6"/><text x="744" y="491" text-anchor="middle" class="mono">R21</text>
+    <rect x="792" y="458" width="66" height="54" rx="8" fill="#ffffff" stroke="#8b5cf6"/><text x="825" y="491" text-anchor="middle" class="mono">R22</text>
+    <rect x="873" y="458" width="66" height="54" rx="8" fill="#ffffff" stroke="#8b5cf6"/><text x="906" y="491" text-anchor="middle" class="mono">R23</text>
+  </g>
+  <text x="785" y="542" text-anchor="middle" class="small">names and tensor indices do not require runtime MOVs</text>
+
+  <rect x="600" y="598" width="370" height="88" rx="12" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="785" y="630" text-anchor="middle" class="label">Source assignment ≠ machine instruction</text>
+  <text x="785" y="657" text-anchor="middle" class="small">register renaming can make the copy free</text>
+
+  <!-- Column 3: SASS -->
+  <rect x="1040" y="145" width="485" height="585" rx="20" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="1070" y="187" class="section" fill="#166534">3 · Recorded SASS audit</text>
+  <text x="1070" y="219" class="small">Audited pow2 specialization · original vs rewritten</text>
+
+  <rect x="1070" y="248" width="425" height="310" rx="14" fill="#ffffff" stroke="#86efac"/>
+  <text x="1095" y="284" class="small">machine-code evidence</text>
+  <text x="1325" y="284" class="small">result</text>
+  <line x1="1095" y1="299" x2="1470" y2="299" stroke="#d1fae5"/>
+
+  <text x="1095" y="336" class="label">MOV instructions</text>
+  <text x="1325" y="336" class="metric" fill="#166534">0  →  0</text>
+  <line x1="1095" y1="353" x2="1470" y2="353" stroke="#e2e8f0"/>
+
+  <text x="1095" y="390" class="label">Total instructions</text>
+  <text x="1325" y="390" class="label" fill="#166534">identical</text>
+  <line x1="1095" y1="407" x2="1470" y2="407" stroke="#e2e8f0"/>
+
+  <text x="1095" y="444" class="label">FADD · SHFL · LDG · STG</text>
+  <text x="1325" y="444" class="label" fill="#166534">identical</text>
+  <line x1="1095" y1="461" x2="1470" y2="461" stroke="#e2e8f0"/>
+
+  <text x="1095" y="498" class="label">Local / stack spills</text>
+  <text x="1325" y="498" class="label" fill="#166534">none / none</text>
+  <line x1="1095" y1="515" x2="1470" y2="515" stroke="#e2e8f0"/>
+
+  <text x="1095" y="541" class="small">No runtime copy existed for the rewrite to remove.</text>
+
+  <rect x="1070" y="590" width="425" height="96" rx="12" fill="#dcfce7" stroke="#4ade80"/>
+  <text x="1282" y="624" text-anchor="middle" class="label" fill="#166534">Observed outcome</text>
+  <text x="1282" y="650" text-anchor="middle" class="small">no consistent gain; results were non-monotonic</text>
+  <text x="1282" y="672" text-anchor="middle" class="tiny">factor order still changes live ranges, coloring and scheduling</text>
+
+  <!-- Conclusion -->
+  <rect x="75" y="770" width="1450" height="70" rx="16" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="800" y="800" text-anchor="middle" class="label" fill="#9a3412">The failed optimization targeted syntax, not an instruction.</text>
+  <text x="800" y="826" text-anchor="middle" class="small">By contrast, CTA row packing changes the number of launched CTAs—an architectural cost the compiler cannot erase.</text>
+
+  <text x="75" y="875" class="small">Evidence: initial_cutedsl.txt lines 194–211 · current hadamard_transform.py lines 330–357 · blog §9 SASS audit</text>
+</svg>

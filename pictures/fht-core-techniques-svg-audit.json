@@ -1,0 +1,142 @@
+{
+  "artifact_set": "fht-core-techniques",
+  "version": 1,
+  "style": {
+    "background": "white",
+    "font_weight": 400,
+    "visual_language": "clean, low-saturation, source-audited SVG"
+  },
+  "artifacts": [
+    {
+      "id": "fht-complexity-d-log-d",
+      "file": "fht-complexity-d-log-d.svg",
+      "scope": "Power-of-two Walsh-Hadamard transform mathematics",
+      "source_refs": [
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:15-43",
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:61-97"
+      ],
+      "assertions": [
+        "A stage contains D/2 butterflies and two add/sub outputs per butterfly.",
+        "The exact D=8 pairing distances are 1, 2, and 4.",
+        "There are log2(D) stages, yielding D log2(D) arithmetic operations."
+      ]
+    },
+    {
+      "id": "fht-gpu-memory-hierarchy",
+      "file": "fht-gpu-memory-hierarchy.svg",
+      "scope": "Current power-of-two CuTeDSL kernel",
+      "source_refs": [
+        "work/ling-fht/cutedsl/hadamard_transform.py:299-328",
+        "work/ling-fht/cutedsl/hadamard_transform.py:330-372",
+        "work/ling-fht/cutedsl/hadamard_transform.py:374-447",
+        "work/ling-fht/cutedsl/hadamard_transform.py:449-468"
+      ],
+      "assertions": [
+        "D equals n_chunks times n_threads times n_elts.",
+        "Thread-local butterflies operate on x_reg.",
+        "Intra-warp butterflies use shuffle XOR.",
+        "The inter-warp phase uses two barrier-separated shared-memory transpose passes only when n_warps is greater than one.",
+        "Global loads and stores are vectorized to 128 bits."
+      ]
+    },
+    {
+      "id": "fht-cross-chunk-sass-optimization",
+      "file": "fht-cross-chunk-sass-optimization.svg",
+      "scope": "Audited power-of-two source variants and recorded SASS comparison",
+      "source_refs": [
+        "work/initial_cutedsl.txt:194-211",
+        "work/ling-fht/cutedsl/hadamard_transform.py:330-357",
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:486-506"
+      ],
+      "assertions": [
+        "The original source used x_t assignments to express a register-tensor transpose.",
+        "The rewrite moved H_n_chunks into the first thread-local stage.",
+        "The recorded SASS comparison found zero MOV instructions in both versions.",
+        "Total, FADD, SHFL, LDG, and STG counts were identical, with no local or stack spills.",
+        "The conclusion is limited to the audited specialization and does not claim all register copies are universally free."
+      ]
+    },
+    {
+      "id": "fht-cta-launch-overhead-speedup",
+      "file": "fht-cta-launch-overhead-speedup.svg",
+      "scope": "BF16 power-of-two FHT row-packing measurements",
+      "source_refs": [
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:179-204",
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:208-267",
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:277-348",
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:413-425"
+      ],
+      "assertions": [
+        "Packing preserves one host kernel launch and reduces only the GPU CTA count.",
+        "For D=128 BF16, eight rows share one CTA and the CTA count falls from N_rows to ceil(N_rows/8).",
+        "The measured large-workload D=128 plateau is 4.94x on H200 and 5.70x on B200.",
+        "At 524288 rows, the H200/B200 speedups are 9.08x/8.90x for D=64, 4.79x/5.41x for D=128, 2.31x/2.60x for D=256, and 1.26x/1.49x for D=512.",
+        "The CTA scheduling cost is an order-of-100-nanoseconds model rather than a universal hardware constant."
+      ]
+    },
+    {
+      "id": "fht-overview-clean",
+      "file": "fht-overview-clean.svg",
+      "scope": "Power-of-two normalized Walsh-Hadamard transform overview",
+      "source_refs": [
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:15-57",
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:61-97"
+      ],
+      "assertions": [
+        "The normalized transform preserves the L2 norm and requires no learned weights.",
+        "For D=8, the exact butterfly pairing distances are 1, 2, and 4.",
+        "Each stage performs D add/sub operations and there are log2(D) stages.",
+        "The FLOP table uses the documented dense GEMV convention of approximately 2D squared."
+      ]
+    },
+    {
+      "id": "fht-cta-row-packing-clean",
+      "file": "fht-cta-row-packing-clean.svg",
+      "scope": "D=128 BF16 row-packing specialization and documented measurements",
+      "source_refs": [
+        "cutedsl/hadamard_transform.py:_compute_rows_per_block",
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:179-267",
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:277-348",
+        "FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:413-425"
+      ],
+      "assertions": [
+        "The host launch count remains one while eight CTA dispatches become one.",
+        "D=128 BF16 uses 16 logical threads per row and packs eight rows into a 128-thread CTA.",
+        "Two adjacent logical rows fill each 32-lane physical warp.",
+        "Packing preserves FHT arithmetic and compulsory memory traffic.",
+        "The displayed H200 and B200 speedups match the documented CUDA-event measurements."
+      ]
+    },
+    {
+      "id": "fht-hierarchical-butterfly-clean",
+      "file": "fht-hierarchical-butterfly-clean.svg",
+      "scope": "Public main baseline, BF16 D=4096 power-of-two specialization",
+      "config": {
+        "D": 4096,
+        "dtype": "BF16",
+        "n_elts": 8,
+        "warp_size": 32,
+        "n_warps": 8,
+        "n_threads": 256,
+        "n_chunks": 2,
+        "rows_per_block": 1,
+        "smem_f32_elements": 4096,
+        "dynamic_smem_bytes": 16384,
+        "n_exchanges": 1
+      },
+      "source_refs": [
+        "cutedsl/hadamard_transform.py:63-87",
+        "cutedsl/hadamard_transform.py:285-475",
+        "cutedsl/hadamard_transform.py:688-742",
+        "cutedsl/hadamard_transform.py:925-952"
+      ],
+      "assertions": [
+        "One CTA processes one D=4096 row because n_threads is greater than 32.",
+        "The factor order in the public baseline is H8 items, H32 lanes, H8 warps, then H2 chunks.",
+        "The cross-warp H8 factor uses one exchange round, two shared-memory transpose passes, and four CTA barriers.",
+        "The specialization allocates 4096 float32 shared-memory elements, or 16384 dynamic bytes.",
+        "The source-level x_t register-tensor assignments do not imply required SASS MOV instructions."
+      ]
+    }
+  ]
+}

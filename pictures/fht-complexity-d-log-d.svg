@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Why the Fast Hadamard Transform costs D log base 2 D</title>
+  <desc id="desc">A clean white diagram showing Kronecker factorization, three exact butterfly stages for D equals 8, and the resulting D log base 2 D operation count.</desc>
+  <metadata><![CDATA[
+  {"id":"fht-complexity-d-log-d","scope":"mathematical FHT for power-of-two D","source_refs":["FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:15","FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:61"],"assertions":["D/2 butterflies per stage","2 add/sub operations per butterfly","log2(D) stages","pairing distance doubles each stage"]}
+  ]]></metadata>
+  <defs>
+    <style>
+      text { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-weight: 400; fill: #1e293b; }
+      .title { font-size: 42px; fill: #0f172a; }
+      .subtitle { font-size: 20px; fill: #64748b; }
+      .section { font-size: 23px; fill: #0f172a; }
+      .label { font-size: 17px; }
+      .small { font-size: 14px; fill: #64748b; }
+      .formula { font-family: "STIX Two Math", "Times New Roman", serif; font-size: 28px; fill: #0f172a; }
+      .lane { font-size: 15px; fill: #475569; }
+      .thin { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#ffffff"/>
+  <text x="80" y="72" class="title">Why the Fast Hadamard Transform costs D log₂D</text>
+  <text x="80" y="108" class="subtitle">Kronecker factorization turns one dense transform into a sequence of sparse butterfly stages.</text>
+
+  <!-- Kronecker factorization -->
+  <rect x="80" y="150" width="330" height="600" rx="20" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="110" y="195" class="section">1 · Recursive structure</text>
+  <text x="110" y="238" class="formula">H₂ = [ 1   1 ]</text>
+  <text x="187" y="272" class="formula">[ 1  −1 ]</text>
+  <path d="M245 302 L245 342" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <text x="110" y="382" class="formula">H₂ᴷ = H₂ ⊗ H₂ ⊗ ··· ⊗ H₂</text>
+  <text x="110" y="418" class="small">k factors · D = 2ᵏ</text>
+
+  <rect x="110" y="458" width="270" height="112" rx="14" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="135" y="500" class="label" fill="#1d4ed8">Butterfly primitive</text>
+  <text x="135" y="542" class="formula">(a, b) → (a+b, a−b)</text>
+
+  <text x="110" y="620" class="label">Each factor introduces one</text>
+  <text x="110" y="648" class="label">new mixing distance.</text>
+  <text x="110" y="698" class="small">No dense D×D matrix is formed or stored.</text>
+
+  <!-- Butterfly stages -->
+  <rect x="440" y="150" width="790" height="600" rx="20" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="470" y="195" class="section">2 · D = 8 has log₂8 = 3 stages</text>
+
+  <!-- Stage panels -->
+  <rect x="470" y="225" width="225" height="455" rx="16" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="492" y="260" class="label" fill="#1d4ed8">Stage 1 · distance 1</text>
+  <text x="492" y="286" class="small">(0,1) (2,3) (4,5) (6,7)</text>
+
+  <rect x="722" y="225" width="225" height="455" rx="16" fill="#f0fdfa" stroke="#99f6e4"/>
+  <text x="744" y="260" class="label" fill="#0f766e">Stage 2 · distance 2</text>
+  <text x="744" y="286" class="small">(0,2) (1,3) (4,6) (5,7)</text>
+
+  <rect x="974" y="225" width="225" height="455" rx="16" fill="#f5f3ff" stroke="#c4b5fd"/>
+  <text x="996" y="260" class="label" fill="#6d28d9">Stage 3 · distance 4</text>
+  <text x="996" y="286" class="small">(0,4) (1,5) (2,6) (3,7)</text>
+
+  <!-- lane guides, stage 1 -->
+  <g stroke="#cbd5e1" stroke-width="1.2">
+    <path d="M510 330 H660"/><path d="M510 372 H660"/><path d="M510 414 H660"/><path d="M510 456 H660"/>
+    <path d="M510 498 H660"/><path d="M510 540 H660"/><path d="M510 582 H660"/><path d="M510 624 H660"/>
+  </g>
+  <g class="lane">
+    <text x="490" y="335">0</text><text x="490" y="377">1</text><text x="490" y="419">2</text><text x="490" y="461">3</text>
+    <text x="490" y="503">4</text><text x="490" y="545">5</text><text x="490" y="587">6</text><text x="490" y="629">7</text>
+  </g>
+  <g fill="#2563eb"><circle cx="535" cy="330" r="4"/><circle cx="535" cy="372" r="4"/><circle cx="535" cy="414" r="4"/><circle cx="535" cy="456" r="4"/><circle cx="535" cy="498" r="4"/><circle cx="535" cy="540" r="4"/><circle cx="535" cy="582" r="4"/><circle cx="535" cy="624" r="4"/></g>
+  <g class="thin" stroke="#2563eb">
+    <path d="M535 330 C610 330 610 372 535 372"/><path d="M535 414 C610 414 610 456 535 456"/>
+    <path d="M535 498 C610 498 610 540 535 540"/><path d="M535 582 C610 582 610 624 535 624"/>
+  </g>
+
+  <!-- lane guides, stage 2 -->
+  <g stroke="#cbd5e1" stroke-width="1.2">
+    <path d="M762 330 H912"/><path d="M762 372 H912"/><path d="M762 414 H912"/><path d="M762 456 H912"/>
+    <path d="M762 498 H912"/><path d="M762 540 H912"/><path d="M762 582 H912"/><path d="M762 624 H912"/>
+  </g>
+  <g class="lane">
+    <text x="742" y="335">0</text><text x="742" y="377">1</text><text x="742" y="419">2</text><text x="742" y="461">3</text>
+    <text x="742" y="503">4</text><text x="742" y="545">5</text><text x="742" y="587">6</text><text x="742" y="629">7</text>
+  </g>
+  <g fill="#0f766e"><circle cx="787" cy="330" r="4"/><circle cx="787" cy="372" r="4"/><circle cx="787" cy="414" r="4"/><circle cx="787" cy="456" r="4"/><circle cx="787" cy="498" r="4"/><circle cx="787" cy="540" r="4"/><circle cx="787" cy="582" r="4"/><circle cx="787" cy="624" r="4"/></g>
+  <g class="thin" stroke="#0f766e">
+    <path d="M787 330 C875 330 875 414 787 414"/><path d="M787 372 C850 372 850 456 787 456"/>
+    <path d="M787 498 C875 498 875 582 787 582"/><path d="M787 540 C850 540 850 624 787 624"/>
+  </g>
+
+  <!-- lane guides, stage 3 -->
+  <g stroke="#cbd5e1" stroke-width="1.2">
+    <path d="M1014 330 H1164"/><path d="M1014 372 H1164"/><path d="M1014 414 H1164"/><path d="M1014 456 H1164"/>
+    <path d="M1014 498 H1164"/><path d="M1014 540 H1164"/><path d="M1014 582 H1164"/><path d="M1014 624 H1164"/>
+  </g>
+  <g class="lane">
+    <text x="994" y="335">0</text><text x="994" y="377">1</text><text x="994" y="419">2</text><text x="994" y="461">3</text>
+    <text x="994" y="503">4</text><text x="994" y="545">5</text><text x="994" y="587">6</text><text x="994" y="629">7</text>
+  </g>
+  <g fill="#7c3aed"><circle cx="1039" cy="330" r="4"/><circle cx="1039" cy="372" r="4"/><circle cx="1039" cy="414" r="4"/><circle cx="1039" cy="456" r="4"/><circle cx="1039" cy="498" r="4"/><circle cx="1039" cy="540" r="4"/><circle cx="1039" cy="582" r="4"/><circle cx="1039" cy="624" r="4"/></g>
+  <g class="thin" stroke="#7c3aed">
+    <path d="M1039 330 C1168 330 1168 498 1039 498"/><path d="M1039 372 C1145 372 1145 540 1039 540"/>
+    <path d="M1039 414 C1122 414 1122 582 1039 582"/><path d="M1039 456 C1099 456 1099 624 1039 624"/>
+  </g>
+  <text x="470" y="716" class="small">Every stage touches all D values once; only the partner distance changes.</text>
+
+  <!-- Cost summary -->
+  <rect x="1260" y="150" width="260" height="600" rx="20" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="1290" y="195" class="section">3 · Count the work</text>
+  <text x="1290" y="250" class="label">D/2 butterflies</text>
+  <text x="1290" y="278" class="label">× 2 add/sub results</text>
+  <line x1="1290" y1="296" x2="1490" y2="296" stroke="#cbd5e1"/>
+  <text x="1290" y="332" class="formula">= D ops / stage</text>
+
+  <text x="1290" y="392" class="label">log₂D stages</text>
+  <line x1="1290" y1="412" x2="1490" y2="412" stroke="#cbd5e1"/>
+  <text x="1290" y="454" class="formula" fill="#1d4ed8">D log₂D</text>
+
+  <rect x="1288" y="500" width="204" height="164" rx="14" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="1310" y="535" class="label" fill="#166534">Example · D = 4,096</text>
+  <text x="1310" y="574" class="small">Dense GEMV ≈ 33.55M</text>
+  <text x="1310" y="604" class="small">FHT = 49.15K</text>
+  <text x="1310" y="638" class="label" fill="#166534">≈ 99.85% fewer FLOPs</text>
+  <text x="1290" y="704" class="small">Dense convention: multiply + add = 2D².</text>
+
+  <rect x="80" y="786" width="1440" height="58" rx="14" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="800" y="823" text-anchor="middle" class="label" fill="#1d4ed8">One dense D×D transform → log₂D sparse stages × D add/sub operations per stage</text>
+  <text x="80" y="875" class="small">Source audit: FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md §§1–2 · Power-of-two Walsh–Hadamard transform</text>
+</svg>

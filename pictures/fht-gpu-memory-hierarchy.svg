@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">How the FHT implementation maps onto the GPU memory hierarchy</title>
+  <desc id="desc">A clean white diagram mapping global memory, thread registers, warp shuffle, shared-memory transpose, and global store for the audited power-of-two CuTeDSL kernel.</desc>
+  <metadata><![CDATA[
+  {"id":"fht-gpu-memory-hierarchy","scope":"current power-of-two CuTeDSL kernel","source_refs":["work/ling-fht/cutedsl/hadamard_transform.py:299","work/ling-fht/cutedsl/hadamard_transform.py:330","work/ling-fht/cutedsl/hadamard_transform.py:359","work/ling-fht/cutedsl/hadamard_transform.py:374","work/ling-fht/cutedsl/hadamard_transform.py:449"],"assertions":["D=n_chunks*n_threads*n_elts","local butterflies remain in registers","intra-warp exchange uses shuffle XOR","inter-warp exchange uses two shared-memory transpose passes only when n_warps>1","global load and store are 128-bit vectorized"]}
+  ]]></metadata>
+  <defs>
+    <style>
+      text { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-weight: 400; fill: #1e293b; }
+      .title { font-size: 40px; fill: #0f172a; }
+      .subtitle { font-size: 20px; fill: #64748b; }
+      .section { font-size: 22px; fill: #0f172a; }
+      .label { font-size: 17px; }
+      .small { font-size: 14px; fill: #64748b; }
+      .tiny { font-size: 12px; fill: #64748b; }
+      .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 15px; }
+      .formula { font-family: "STIX Two Math", "Times New Roman", serif; font-size: 25px; }
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#ffffff"/>
+  <text x="75" y="70" class="title">How this FHT maps onto the GPU memory hierarchy</text>
+  <text x="75" y="106" class="subtitle">The transform dimension is factored across values per thread, threads per row, and register chunks.</text>
+
+  <rect x="75" y="135" width="1450" height="64" rx="15" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="800" y="176" text-anchor="middle" class="formula">D = n_chunks × n_threads × n_elts</text>
+
+  <!-- Pipeline arrows behind cards -->
+  <g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <path d="M310 385 H355"/><path d="M605 385 H650"/><path d="M900 385 H945"/><path d="M1250 385 H1295"/>
+  </g>
+
+  <!-- GMEM load -->
+  <rect x="75" y="240" width="235" height="340" rx="18" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="100" y="278" class="section" fill="#1d4ed8">1 · Global memory</text>
+  <text x="100" y="312" class="mono">input[rows, D]</text>
+  <g fill="#dbeafe" stroke="#60a5fa">
+    <rect x="100" y="345" width="185" height="28" rx="4"/><rect x="100" y="379" width="185" height="28" rx="4"/>
+    <rect x="100" y="413" width="185" height="28" rx="4"/><rect x="100" y="447" width="185" height="28" rx="4"/>
+  </g>
+  <g class="tiny" fill="#1d4ed8">
+    <text x="110" y="364">row 0 · contiguous D values</text><text x="110" y="398">row 1</text><text x="110" y="432">row 2</text><text x="110" y="466">row 3</text>
+  </g>
+  <rect x="100" y="500" width="185" height="48" rx="10" fill="#ffffff" stroke="#bfdbfe"/>
+  <text x="192" y="530" text-anchor="middle" class="label" fill="#1d4ed8">LDG.128</text>
+
+  <!-- Thread registers -->
+  <rect x="355" y="240" width="250" height="340" rx="18" fill="#f0fdfa" stroke="#99f6e4"/>
+  <text x="380" y="278" class="section" fill="#0f766e">2 · Thread registers</text>
+  <text x="380" y="312" class="mono">x_reg[n_chunks, n_elts]</text>
+  <g fill="#ccfbf1" stroke="#5eead4">
+    <rect x="385" y="350" width="42" height="42" rx="5"/><rect x="433" y="350" width="42" height="42" rx="5"/><rect x="481" y="350" width="42" height="42" rx="5"/><rect x="529" y="350" width="42" height="42" rx="5"/>
+    <rect x="385" y="398" width="42" height="42" rx="5"/><rect x="433" y="398" width="42" height="42" rx="5"/><rect x="481" y="398" width="42" height="42" rx="5"/><rect x="529" y="398" width="42" height="42" rx="5"/>
+    <rect x="385" y="446" width="42" height="42" rx="5"/><rect x="433" y="446" width="42" height="42" rx="5"/><rect x="481" y="446" width="42" height="42" rx="5"/><rect x="529" y="446" width="42" height="42" rx="5"/>
+  </g>
+  <text x="380" y="525" class="label" fill="#0f766e">Local butterflies</text>
+  <text x="380" y="551" class="small">H_n_elts, then H_n_chunks</text>
+
+  <!-- Warp shuffle -->
+  <rect x="650" y="240" width="250" height="340" rx="18" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="675" y="278" class="section" fill="#c2410c">3 · Warp lanes</text>
+  <text x="675" y="312" class="mono">SHFL.XOR</text>
+  <g>
+    <rect x="678" y="350" width="194" height="34" rx="8" fill="#ffedd5" stroke="#fb923c"/>
+    <g fill="#f97316">
+      <circle cx="697" cy="367" r="5"/><circle cx="719" cy="367" r="5"/><circle cx="741" cy="367" r="5"/><circle cx="763" cy="367" r="5"/>
+      <circle cx="785" cy="367" r="5"/><circle cx="807" cy="367" r="5"/><circle cx="829" cy="367" r="5"/><circle cx="851" cy="367" r="5"/>
+    </g>
+    <g stroke="#c2410c" stroke-width="1.6" fill="none">
+      <path d="M697 405 C708 390 708 390 719 405"/><path d="M741 405 C752 390 752 390 763 405"/>
+      <path d="M785 405 C796 390 796 390 807 405"/><path d="M829 405 C840 390 840 390 851 405"/>
+      <path d="M697 438 C719 417 719 417 741 438"/><path d="M763 438 C785 417 785 417 807 438"/>
+    </g>
+  </g>
+  <text x="675" y="482" class="label" fill="#c2410c">Offsets 1, 2, 4, …</text>
+  <text x="675" y="512" class="small">Registers exchange directly</text>
+  <text x="675" y="536" class="small">within one 32-lane warp.</text>
+
+  <!-- CTA / SMEM -->
+  <rect x="945" y="220" width="305" height="380" rx="18" fill="#f5f3ff" stroke="#c4b5fd"/>
+  <text x="970" y="258" class="section" fill="#6d28d9">4 · CTA cross-warp exchange</text>
+  <text x="970" y="290" class="small">Only when n_warps &gt; 1</text>
+
+  <rect x="970" y="320" width="255" height="46" rx="10" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="1097" y="349" text-anchor="middle" class="label">register ownership: warp × lane</text>
+  <path d="M1097 370 V397" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <rect x="970" y="402" width="255" height="78" rx="10" fill="#ede9fe" stroke="#a78bfa"/>
+  <text x="1097" y="432" text-anchor="middle" class="label" fill="#6d28d9">XOR-swizzled shared memory</text>
+  <text x="1097" y="458" text-anchor="middle" class="small">barrier · write one view · read transpose</text>
+  <path d="M1097 484 V511" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <rect x="970" y="516" width="255" height="58" rx="10" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="1097" y="541" text-anchor="middle" class="label">transposed registers + SHFL.XOR</text>
+  <text x="1097" y="563" text-anchor="middle" class="tiny">second SMEM pass restores ownership</text>
+
+  <!-- Output -->
+  <rect x="1295" y="240" width="230" height="340" rx="18" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="1320" y="278" class="section" fill="#166534">5 · Global output</text>
+  <text x="1320" y="312" class="mono">output[rows, D]</text>
+  <rect x="1320" y="350" width="180" height="70" rx="12" fill="#ffffff" stroke="#86efac"/>
+  <text x="1410" y="380" text-anchor="middle" class="label" fill="#166534">scale + downcast</text>
+  <text x="1410" y="404" text-anchor="middle" class="small">still in registers</text>
+  <path d="M1410 435 V465" stroke="#15803d" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <rect x="1320" y="475" width="180" height="48" rx="10" fill="#dcfce7" stroke="#4ade80"/>
+  <text x="1410" y="505" text-anchor="middle" class="label" fill="#166534">STG.128</text>
+
+  <!-- Residency strip -->
+  <rect x="75" y="640" width="1450" height="148" rx="18" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="105" y="680" class="section">Where the values live</text>
+  <g class="label" text-anchor="middle">
+    <text x="190" y="734" fill="#1d4ed8">GMEM</text>
+    <text x="450" y="734" fill="#0f766e">registers</text>
+    <text x="735" y="734" fill="#c2410c">registers + shuffle</text>
+    <text x="1080" y="734" fill="#6d28d9">temporary SMEM reownership</text>
+    <text x="1410" y="734" fill="#166534">GMEM</text>
+  </g>
+  <g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <path d="M250 728 H360"/><path d="M535 728 H615"/><path d="M855 728 H925"/><path d="M1240 728 H1310"/>
+  </g>
+  <text x="800" y="771" text-anchor="middle" class="small">SMEM does not hold the final transform; it temporarily changes which warp owns each value so warp shuffle can finish the butterfly.</text>
+
+  <text x="75" y="835" class="small">Audited scope: current power-of-two CuTeDSL kernel · hadamard_transform.py lines 299–468</text>
+  <text x="75" y="862" class="small">For n_warps = 1, stage 4 is skipped. Small-D row packing may place multiple independent rows in one 128-thread CTA.</text>
+</svg>

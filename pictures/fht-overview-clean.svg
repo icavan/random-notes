@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Fast Hadamard Transform overview</title>
+  <desc id="desc">A clean white overview of what the Fast Hadamard Transform does, the exact D equals 8 butterfly pairings, and why the work is D log base 2 D.</desc>
+  <metadata><![CDATA[
+  {"id":"fht-overview-clean","scope":"power-of-two normalized Walsh-Hadamard transform","source_refs":["FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md:15-97"],"assertions":["normalized transform preserves the L2 norm","D=8 pairing distances are 1,2,4","each stage performs D add/sub operations","there are log2(D) stages"]}
+  ]]></metadata>
+  <defs>
+    <style>
+      text { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-weight: 400; fill: #1e293b; }
+      .title { font-size: 40px; fill: #0f172a; }
+      .subtitle { font-size: 19px; fill: #64748b; }
+      .section { font-size: 22px; fill: #0f172a; }
+      .label { font-size: 16px; }
+      .small { font-size: 13px; fill: #64748b; }
+      .tiny { font-size: 11px; fill: #64748b; }
+      .formula { font-family: "STIX Two Math", "Times New Roman", serif; font-size: 24px; }
+      .lane { font-size: 12px; fill: #475569; }
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#ffffff"/>
+  <text x="60" y="62" class="title">Fast Hadamard Transform</text>
+  <text x="60" y="96" class="subtitle">Orthogonal mixing through log₂D sparse butterfly stages</text>
+
+  <!-- What it does -->
+  <rect x="60" y="130" width="340" height="680" rx="20" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="90" y="172" class="section">1 · What it does</text>
+  <text x="90" y="204" class="small">A deterministic orthogonal rotation</text>
+
+  <text x="105" y="247" class="small">input x</text>
+  <text x="312" y="247" class="small">output y</text>
+  <rect x="95" y="265" width="64" height="220" rx="10" fill="#ffffff" stroke="#94a3b8"/>
+  <rect x="300" y="265" width="64" height="220" rx="10" fill="#ffffff" stroke="#94a3b8"/>
+  <g fill="#93c5fd">
+    <rect x="111" y="281" width="36" height="16" rx="3"/><rect x="111" y="305" width="13" height="16" rx="3"/>
+    <rect x="111" y="329" width="28" height="16" rx="3"/><rect x="111" y="353" width="8" height="16" rx="3"/>
+    <rect x="111" y="377" width="22" height="16" rx="3"/><rect x="111" y="401" width="5" height="16" rx="3"/>
+    <rect x="111" y="425" width="10" height="16" rx="3"/><rect x="111" y="449" width="31" height="16" rx="3"/>
+  </g>
+  <g fill="#5eead4">
+    <rect x="316" y="281" width="25" height="16" rx="3"/><rect x="316" y="305" width="22" height="16" rx="3"/>
+    <rect x="316" y="329" width="28" height="16" rx="3"/><rect x="316" y="353" width="20" height="16" rx="3"/>
+    <rect x="316" y="377" width="26" height="16" rx="3"/><rect x="316" y="401" width="23" height="16" rx="3"/>
+    <rect x="316" y="425" width="27" height="16" rx="3"/><rect x="316" y="449" width="21" height="16" rx="3"/>
+  </g>
+  <rect x="181" y="312" width="96" height="114" rx="14" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="229" y="347" text-anchor="middle" class="label" fill="#1d4ed8">Hadamard</text>
+  <text x="229" y="371" text-anchor="middle" class="label" fill="#1d4ed8">transform</text>
+  <text x="229" y="404" text-anchor="middle" class="formula" fill="#1d4ed8">H<tspan baseline-shift="sub" font-size="15">D</tspan></text>
+  <path d="M159 369 H177" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <path d="M277 369 H296" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <rect x="90" y="512" width="280" height="60" rx="12" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="230" y="549" text-anchor="middle" class="formula">y = H<tspan baseline-shift="sub" font-size="15">D</tspan>x / √D</text>
+
+  <g>
+    <circle cx="102" cy="610" r="5" fill="#2563eb"/><text x="120" y="616" class="label">Mixes every coordinate</text>
+    <circle cx="102" cy="650" r="5" fill="#0f766e"/><text x="120" y="656" class="label">Spreads energy and outliers</text>
+    <circle cx="102" cy="690" r="5" fill="#7c3aed"/><text x="120" y="696" class="label">No learned weights</text>
+    <circle cx="102" cy="730" r="5" fill="#c2410c"/><text x="120" y="736" class="label">Only add and subtract</text>
+  </g>
+  <line x1="90" y1="758" x2="370" y2="758" stroke="#cbd5e1"/>
+  <text x="90" y="787" class="small">Properties: ‖y‖₂ = ‖x‖₂ · H<tspan baseline-shift="super" font-size="9">−1</tspan> = H / D</text>
+
+  <!-- Butterfly network -->
+  <rect x="425" y="130" width="705" height="680" rx="20" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="455" y="172" class="section">2 · Why butterflies work</text>
+  <text x="455" y="204" class="small">D=8 · every stage doubles the partner distance</text>
+
+  <rect x="455" y="232" width="205" height="420" rx="15" fill="#eff6ff" stroke="#93c5fd"/>
+  <rect x="675" y="232" width="205" height="420" rx="15" fill="#f0fdfa" stroke="#99f6e4"/>
+  <rect x="895" y="232" width="205" height="420" rx="15" fill="#f5f3ff" stroke="#c4b5fd"/>
+  <text x="475" y="263" class="label" fill="#1d4ed8">Stage 1 · distance 1</text>
+  <text x="695" y="263" class="label" fill="#0f766e">Stage 2 · distance 2</text>
+  <text x="915" y="263" class="label" fill="#6d28d9">Stage 3 · distance 4</text>
+  <text x="475" y="287" class="tiny">(0,1) (2,3) (4,5) (6,7)</text>
+  <text x="695" y="287" class="tiny">(0,2) (1,3) (4,6) (5,7)</text>
+  <text x="915" y="287" class="tiny">(0,4) (1,5) (2,6) (3,7)</text>
+
+  <!-- stage 1 lanes -->
+  <g stroke="#cbd5e1"><path d="M485 330 H635"/><path d="M485 370 H635"/><path d="M485 410 H635"/><path d="M485 450 H635"/><path d="M485 490 H635"/><path d="M485 530 H635"/><path d="M485 570 H635"/><path d="M485 610 H635"/></g>
+  <g class="lane"><text x="470" y="334">0</text><text x="470" y="374">1</text><text x="470" y="414">2</text><text x="470" y="454">3</text><text x="470" y="494">4</text><text x="470" y="534">5</text><text x="470" y="574">6</text><text x="470" y="614">7</text></g>
+  <g fill="#2563eb"><circle cx="505" cy="330" r="4"/><circle cx="505" cy="370" r="4"/><circle cx="505" cy="410" r="4"/><circle cx="505" cy="450" r="4"/><circle cx="505" cy="490" r="4"/><circle cx="505" cy="530" r="4"/><circle cx="505" cy="570" r="4"/><circle cx="505" cy="610" r="4"/></g>
+  <g fill="none" stroke="#2563eb" stroke-width="2"><path d="M505 330 C585 330 585 370 505 370"/><path d="M505 410 C585 410 585 450 505 450"/><path d="M505 490 C585 490 585 530 505 530"/><path d="M505 570 C585 570 585 610 505 610"/></g>
+
+  <!-- stage 2 lanes -->
+  <g stroke="#cbd5e1"><path d="M705 330 H855"/><path d="M705 370 H855"/><path d="M705 410 H855"/><path d="M705 450 H855"/><path d="M705 490 H855"/><path d="M705 530 H855"/><path d="M705 570 H855"/><path d="M705 610 H855"/></g>
+  <g class="lane"><text x="690" y="334">0</text><text x="690" y="374">1</text><text x="690" y="414">2</text><text x="690" y="454">3</text><text x="690" y="494">4</text><text x="690" y="534">5</text><text x="690" y="574">6</text><text x="690" y="614">7</text></g>
+  <g fill="#0f766e"><circle cx="725" cy="330" r="4"/><circle cx="725" cy="370" r="4"/><circle cx="725" cy="410" r="4"/><circle cx="725" cy="450" r="4"/><circle cx="725" cy="490" r="4"/><circle cx="725" cy="530" r="4"/><circle cx="725" cy="570" r="4"/><circle cx="725" cy="610" r="4"/></g>
+  <g fill="none" stroke="#0f766e" stroke-width="2"><path d="M725 330 C820 330 820 410 725 410"/><path d="M725 370 C795 370 795 450 725 450"/><path d="M725 490 C820 490 820 570 725 570"/><path d="M725 530 C795 530 795 610 725 610"/></g>
+
+  <!-- stage 3 lanes -->
+  <g stroke="#cbd5e1"><path d="M925 330 H1075"/><path d="M925 370 H1075"/><path d="M925 410 H1075"/><path d="M925 450 H1075"/><path d="M925 490 H1075"/><path d="M925 530 H1075"/><path d="M925 570 H1075"/><path d="M925 610 H1075"/></g>
+  <g class="lane"><text x="910" y="334">0</text><text x="910" y="374">1</text><text x="910" y="414">2</text><text x="910" y="454">3</text><text x="910" y="494">4</text><text x="910" y="534">5</text><text x="910" y="574">6</text><text x="910" y="614">7</text></g>
+  <g fill="#7c3aed"><circle cx="945" cy="330" r="4"/><circle cx="945" cy="370" r="4"/><circle cx="945" cy="410" r="4"/><circle cx="945" cy="450" r="4"/><circle cx="945" cy="490" r="4"/><circle cx="945" cy="530" r="4"/><circle cx="945" cy="570" r="4"/><circle cx="945" cy="610" r="4"/></g>
+  <g fill="none" stroke="#7c3aed" stroke-width="2"><path d="M945 330 C1080 330 1080 490 945 490"/><path d="M945 370 C1055 370 1055 530 945 530"/><path d="M945 410 C1030 410 1030 570 945 570"/><path d="M945 450 C1005 450 1005 610 945 610"/></g>
+
+  <rect x="455" y="680" width="305" height="86" rx="12" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="607" y="710" text-anchor="middle" class="label" fill="#9a3412">Butterfly primitive</text>
+  <text x="607" y="746" text-anchor="middle" class="formula">(a, b) → (a+b, a−b)</text>
+  <rect x="780" y="680" width="320" height="86" rx="12" fill="#f5f3ff" stroke="#c4b5fd"/>
+  <text x="940" y="710" text-anchor="middle" class="label" fill="#6d28d9">Kronecker recursion</text>
+  <text x="940" y="746" text-anchor="middle" class="formula">H<tspan baseline-shift="sub" font-size="14">2D</tspan> = [ H<tspan baseline-shift="sub" font-size="14">D</tspan>  H<tspan baseline-shift="sub" font-size="14">D</tspan> ; H<tspan baseline-shift="sub" font-size="14">D</tspan>  −H<tspan baseline-shift="sub" font-size="14">D</tspan> ]</text>
+
+  <!-- Complexity -->
+  <rect x="1155" y="130" width="385" height="680" rx="20" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="1185" y="172" class="section">3 · Why D log₂D</text>
+  <rect x="1185" y="205" width="325" height="125" rx="14" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="1210" y="241" class="label">log₂D stages</text>
+  <text x="1210" y="274" class="label">× D add/sub operations per stage</text>
+  <line x1="1210" y1="291" x2="1485" y2="291" stroke="#93c5fd"/>
+  <text x="1348" y="319" text-anchor="middle" class="formula" fill="#1d4ed8">Total = D log₂D</text>
+
+  <text x="1185" y="368" class="label">Dense GEMV ≈ 2D² FLOPs</text>
+  <text x="1185" y="398" class="label">FHT = D log₂D FLOPs</text>
+  <text x="1185" y="428" class="label">Work ratio ≈ 2D / log₂D</text>
+
+  <text x="1185" y="474" class="section">FLOPs saved</text>
+  <rect x="1185" y="495" width="325" height="236" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+  <g class="small" text-anchor="middle">
+    <text x="1225" y="523">D</text><text x="1300" y="523">Dense</text><text x="1386" y="523">FHT</text><text x="1465" y="523">reduction</text>
+  </g>
+  <g stroke="#e2e8f0"><line x1="1195" y1="536" x2="1500" y2="536"/><line x1="1195" y1="574" x2="1500" y2="574"/><line x1="1195" y1="612" x2="1500" y2="612"/><line x1="1195" y1="650" x2="1500" y2="650"/><line x1="1195" y1="688" x2="1500" y2="688"/></g>
+  <g class="small" text-anchor="middle">
+    <text x="1225" y="562">128</text><text x="1300" y="562">32.77K</text><text x="1386" y="562">896</text><text x="1465" y="562">97.27%</text>
+    <text x="1225" y="600">512</text><text x="1300" y="600">524.29K</text><text x="1386" y="600">4.61K</text><text x="1465" y="600">99.12%</text>
+    <text x="1225" y="638">4,096</text><text x="1300" y="638">33.55M</text><text x="1386" y="638">49.15K</text><text x="1465" y="638">99.85%</text>
+    <text x="1225" y="676">8,192</text><text x="1300" y="676">134.22M</text><text x="1386" y="676">106.50K</text><text x="1465" y="676">99.92%</text>
+    <text x="1225" y="714">32,768</text><text x="1300" y="714">2.147B</text><text x="1386" y="714">491.52K</text><text x="1465" y="714">99.98%</text>
+  </g>
+  <text x="1185" y="765" class="tiny">Dense counts multiply + add; sign changes may be treated as free.</text>
+
+  <rect x="60" y="833" width="1480" height="42" rx="12" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="800" y="860" text-anchor="middle" class="label" fill="#1d4ed8">Kronecker factorization replaces one dense D×D multiply with log₂D sparse stages.</text>
+  <text x="60" y="892" class="tiny">Source audit: FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md §§1–2</text>
+</svg>
