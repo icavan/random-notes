@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="2704" viewBox="0 0 1240 2704">
+  <rect width="1240" height="2704" fill="#ffffff"/>
+  <foreignObject x="0" y="0" width="1240" height="2704">
+    <div xmlns="http://www.w3.org/1999/xhtml"><style>
+:root{--ink:#17202a;--muted:#66717e;--line:#d8dee6;--soft:#f6f8fa;--q:#dcecff;--kv:#ffe8d7;--compute:#e4f5e9;--mma:#f9e2ef;--reduce:#eee7fb;--state:#dff3f3;--accent:#2b6cb0}
+*{box-sizing:border-box} body{margin:0;background:#fff;color:var(--ink);font-family:Inter,"SF Pro Text","Helvetica Neue",Arial,sans-serif;font-weight:350;letter-spacing:.005em}
+.page{width:1240px;margin:0 auto;padding:42px 38px 52px} h1{font-size:34px;line-height:1.15;font-weight:520;margin:0} h2{font-size:20px;font-weight:520;margin:0 0 16px} h3{font-size:15px;font-weight:520;margin:0 0 8px} p{margin:0;line-height:1.45} .sub{color:var(--muted);font-size:15px;margin-top:9px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px} .chip{border:1px solid var(--line);border-radius:999px;padding:6px 11px;font-size:12px;color:#47515d;background:#fff}
+.section{border-top:1px solid var(--line);padding-top:25px;margin-top:30px} .note{font-size:12px;color:var(--muted)} .src{font-size:10px;color:#73808e;white-space:nowrap}
+.headline-row{display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
+.flow{display:grid;grid-template-columns:1fr 54px 2fr 54px 1fr 54px 1fr;align-items:stretch;margin-top:17px} .flowbox{border:1px solid var(--line);border-radius:8px;padding:14px 15px;background:var(--soft);min-height:94px} .flowbox.main{background:#f7fbff;border-color:#b9d5ee} .arrow{display:flex;align-items:center;justify-content:center;color:#75808d;font-size:25px;font-weight:250}
+.smem-bar,.smem-stage{display:grid;grid-template-columns:1fr 36fr 72fr 32fr 4fr 4fr 1.2fr;border:1px solid #bfc8d2;min-height:72px;margin-top:15px} .seg{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5px;border-right:1px solid #c8d0d9;font-size:12px;overflow:hidden} .seg:last-child{border-right:0} .seg small{display:block;color:#596575;font-size:10px;margin-top:3px} .ctrl{background:#f4f6f8} .q{background:var(--q)} .kv{background:var(--kv)} .comp{background:var(--compute)} .mma{background:var(--mma)} .red{background:var(--reduce)} .state{background:var(--state)}
+.offsets{display:grid;grid-template-columns:1fr 36fr 72fr 32fr 4fr 4fr 1.2fr;color:#6b7581;font-size:10px;margin-top:5px} .offsets span{text-align:left;transform:translateX(-3px)}
+.smem-stage{min-height:58px;margin-top:9px} .reuse-tag{color:#23648f;font-size:10px;margin-top:2px}
+.views{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:13px} .view{border:1px solid var(--line);border-radius:7px;padding:10px 12px;background:#fff;font-size:11px;line-height:1.45} .view b{font-weight:520}
+.tmem{display:grid;grid-template-columns:32fr 32fr 64fr 64fr 32fr 32fr 32fr 32fr 32fr 64fr 96fr;border:1px solid #bfc8d2;min-height:88px;margin-top:15px} .tmem .seg{font-size:11px;padding:4px 2px} .tmem-offsets{display:grid;grid-template-columns:32fr 32fr 64fr 64fr 32fr 32fr 32fr 32fr 32fr 64fr 96fr;color:#6b7581;font-size:9px;margin-top:4px}
+.warpmap{display:grid;grid-template-columns:repeat(32,1fr);gap:3px;margin-top:15px} .warp{height:38px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;border:1px solid rgba(20,30,40,.12)} .role-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:13px} .role{border:1px solid var(--line);border-radius:7px;padding:11px 12px;font-size:11px;line-height:1.45;min-height:92px} .role strong{display:block;font-size:13px;font-weight:520;margin-bottom:4px}
+.timeline{display:grid;grid-template-columns:190px repeat(9,1fr);grid-auto-rows:54px;border-left:1px solid var(--line);border-top:1px solid var(--line);margin-top:16px} .cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:7px 8px;font-size:10px;display:flex;align-items:center;justify-content:center;text-align:center} .lane{justify-content:flex-start;font-size:12px;font-weight:500;background:#fafbfc} .phase{background:#fafbfc;color:#66717e} .work{margin:5px;border:1px solid rgba(20,30,40,.13);border-radius:5px;padding:4px 6px;font-size:10px;display:flex;align-items:center;justify-content:center;text-align:center;z-index:2} .dash{border-style:dashed} .early{box-shadow:inset 3px 0 #3a84b8}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:#5c6773} .sw{display:inline-block;width:12px;height:12px;border:1px solid #c4ccd5;margin-right:5px;vertical-align:-2px}
+.formulas{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px} .formula{border:1px solid var(--line);border-radius:8px;padding:15px 16px;min-height:176px} .formula .eq{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;line-height:1.7;letter-spacing:-.02em} .shape{color:#64717e;font-size:11px} .num{display:inline-flex;width:23px;height:23px;border-radius:50%;align-items:center;justify-content:center;background:#edf2f7;margin-right:7px;font-size:11px}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px} .io-card{border:1px solid var(--line);border-radius:8px;padding:13px 15px} .io-grid{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:11px;line-height:1.45;margin-top:8px} .io-grid b{font-family:"SF Mono",Menlo,monospace;font-weight:450}
+.key{margin-top:18px;border-left:3px solid #5a9ac6;background:#f5f9fc;padding:12px 15px;font-size:12px;line-height:1.5}
+@media(max-width:1000px){.page{width:960px;padding-left:28px;padding-right:28px}}
+</style><main class="page">
+  <div class="headline-row"><div><h1>SM100 DSA backward · H32 single-query kernel</h1><p class="sub">One query token per CTA · sparse tile 64 · H=32 · Dqk=576 · Dv=512 · BF16 I/O / FP32 accumulation</p></div><div class="note">active selector <span class="src" title="/Users/van/code/icavan/cudnn-h96/python/cudnn/deepseek_sparse_attention/sparse_attention_backward/_interface_sm100.py">source L63</span></div></div>
+  <div class="chips"><span class="chip">32 warps / 1024 threads</span><span class="chip">single-stage K shuttle</span><span class="chip">2-stage dKV reducer</span><span class="chip">512 TMEM columns allocated</span><span class="chip">no query union</span></div>
+
+  <section class="section"><h2>Operator flow</h2>
+    <div class="flow">
+      <div class="flowbox comp"><h3>① Preprocess</h3><p>δ = O · dO<br />fold attention sink into LSE</p><span class="shape">workspace: [Sq,H] FP32 ×2</span></div><div class="arrow">→</div>
+      <div class="flowbox main"><h3>② Main H32 kernel · one CTA per query token</h3><p>reverse sparse-tile loop: gather KV → S/dP → P/dS → dQ + dKV</p><span class="shape">persistent dQ in TMEM · FP32 atomic dKV</span></div><div class="arrow">→</div>
+      <div class="flowbox state"><h3>③ Convert</h3><p>FP32 dKV workspace<br />→ BF16 dKV</p></div><div class="arrow">→</div>
+      <div class="flowbox red"><h3>④ Sink grad</h3><p>reduce p_sink · (−δ)<br />across query tokens</p></div>
+    </div>
+  </section>
+
+  <section class="section"><div class="headline-row"><h2>Physical SMEM · 152,832 B (149.25 KiB)</h2><span class="note">field order + 1 KiB / 128 B alignment <span class="src" title="/Users/van/code/icavan/cudnn-h96/python/cudnn/deepseek_sparse_attention/sparse_attention_backward/dsa_bwd_sm100_h16.py">source L456</span></span></div>
+    <div class="smem-bar">
+      <div class="seg ctrl">control<small>1 KiB</small></div><div class="seg q">sQ<small>[32,576] BF16 · 36 KiB</small></div><div class="seg kv">sK / sV view<small>[64,576] BF16 · 72 KiB</small></div><div class="seg q">sdO<small>[32,512] BF16 · 32 KiB</small></div><div class="seg comp">sP<small>4 KiB</small></div><div class="seg comp">sdS<small>4 KiB</small></div><div class="seg ctrl">meta<small>256 B</small></div>
+    </div>
+    <div class="offsets"><span>0</span><span>1 KiB</span><span>37 KiB</span><span>109 KiB</span><span>141 KiB</span><span>145 KiB</span><span>149 KiB</span></div>
+    <div class="smem-stage">
+      <div class="seg ctrl">mbarriers<br />TMEM handle</div><div class="seg q">Q / Qᵀ views<br /><span class="reuse-tag">live across tile loop</span></div><div class="seg state">after final K release: dQ shuttle<br /><small>first 8 KiB: dQ0…3 [128,32]; final 4 KiB: dQ4 [64,32]</small></div><div class="seg q">dO / dOᵀ views</div><div class="seg comp">P<br />[64,32]</div><div class="seg comp">dS / dSᵀ<br />[64,32]</div><div class="seg ctrl">LSE<br />−δ</div>
+    </div>
+    <div class="views">
+      <div class="view"><b>sK allocation</b><br />K=[64,576]; V is columns 0:512; tail K is columns 512:576. These are simultaneous views, not extra storage.</div>
+      <div class="view"><b>sQ allocation</b><br />Q=[32,576], Qᵀ main and Qᵀ tail share the same bytes through recast layouts.</div>
+      <div class="view"><b>sP / sdS</b><br />register-store and tcgen05 operand layouts reinterpret the same 4 KiB allocation.</div>
+      <div class="view"><b>Lifetime reuse</b><br />sK → dQ epilogue only after the final <i>load_mma_K.consumer_release</i>. <span class="src" title="/Users/van/code/icavan/cudnn-h96/python/cudnn/deepseek_sparse_attention/sparse_attention_backward/dsa_bwd_sm100_h16.py">source L869</span></div>
+    </div>
+  </section>
+
+  <section class="section"><div class="headline-row"><h2>TMEM · persistent accumulators and short-lived fragments</h2><span class="note">offsets <span class="src" title="/Users/van/code/icavan/cudnn-h96/python/cudnn/deepseek_sparse_attention/sparse_attention_backward/dsa_bwd_sm100_h32.py">source L77</span></span></div>
+    <div class="tmem">
+      <div class="seg mma">S<br /><small>0:32</small></div><div class="seg mma">dP<br /><small>32:64</small></div><div class="seg red">dKV0 → dKV2<br /><small>64:128</small></div><div class="seg red">dKV1 → dKV3<br /><small>128:192</small></div><div class="seg state">dQ0<br /><small>192:224</small></div><div class="seg state">dQ1<br /><small>224:256</small></div><div class="seg state">dQ2<br /><small>256:288</small></div><div class="seg state">dQ3<br /><small>288:320</small></div><div class="seg state">dQ4<br /><small>320:352</small></div><div class="seg red">dKV4<br /><small>352:416</small></div><div class="seg ctrl">unused<br /><small>416:512</small></div>
+    </div>
+    <p class="note" style="margin-top:9px">dQ0…4 accumulate FP32 across every sparse tile. dKV0/1 are T2R-detached before dKV2/3 reuse the same columns; dKV4 is disjoint to keep the MMA critical path moving. <span class="src" title="/Users/van/code/icavan/cudnn-h96/python/cudnn/deepseek_sparse_attention/sparse_attention_backward/dsa_bwd_sm100_h32.py">source L817</span></p>
+  </section>
+
+  <section class="section"><h2>Warp specialization</h2>
+    <div class="warpmap"><div class="warp kv">0</div><div class="warp kv">1</div><div class="warp kv">2</div><div class="warp kv">3</div><div class="warp kv">4</div><div class="warp kv">5</div><div class="warp kv">6</div><div class="warp kv">7</div><div class="warp kv">8</div><div class="warp kv">9</div><div class="warp kv">10</div><div class="warp kv">11</div><div class="warp kv">12</div><div class="warp kv">13</div><div class="warp kv">14</div><div class="warp kv">15</div><div class="warp comp">16</div><div class="warp comp">17</div><div class="warp comp">18</div><div class="warp comp">19</div><div class="warp red">20</div><div class="warp red">21</div><div class="warp red">22</div><div class="warp red">23</div><div class="warp red">24</div><div class="warp red">25</div><div class="warp red">26</div><div class="warp red">27</div><div class="warp mma">28</div><div class="warp q">29</div><div class="warp ctrl">30</div><div class="warp ctrl">31</div></div>
+    <div class="role-cards">
+      <div class="role kv"><strong>Warps 0–15 · sparse KV</strong>Each warp forms four 8-lane subwarps. Together they issue 64 independent KV rows with 128-bit cp.async, then publish one K stage. <span class="src" title="/Users/van/code/icavan/cudnn-h96/python/cudnn/deepseek_sparse_attention/sparse_attention_backward/dsa_bwd_sm100_h16.py">source L1099</span></div>
+      <div class="role comp"><strong>Warps 16–19 · compute</strong>T2R S/dP; exp2 softmax; produce BF16 P/dS; after the loop, stage five dQ fragments to SMEM/TMA.</div>
+      <div class="role red"><strong>Warps 20–27 · reducer</strong>T2R dKV fragments into registers, release TMEM early, then relaxed GPU-scope FP32 atomic add into the global workspace.</div>
+      <div class="role mma"><strong>Warp 28 · tcgen05 issuer</strong>Issues S, raw dP, dV+dK and persistent dQ UMMA operations; owns early K release after dQ's final K read.</div>
+      <div class="role q"><strong>Warp 29 · fixed loader</strong>TMA-loads Q and dO once; copies scaled LSE and −δ metadata. Warps 30–31 reserve register/warp-group structure.</div>
+    </div>
+  </section>
+
+  <section class="section"><div class="headline-row"><h2>Representative reverse sparse-tile iteration</h2><span class="note">one tile = 64 selected KV rows</span></div>
+    <div class="timeline">
+      <div class="cell phase">owner</div><div class="cell phase">prologue issue</div><div class="cell phase">async loads in flight</div><div class="cell phase">both ready → S / raw dP</div><div class="cell phase">P / dS</div><div class="cell phase">dKV0/1</div><div class="cell phase">dQ + release K[t]</div><div class="cell phase">tail + next gather</div><div class="cell phase">next score / atomics</div><div class="cell phase">final dQ stores</div>
+      <div class="cell lane">warp 29 · fixed loader</div><div class="work q" style="grid-column:2/4">TMA G→S: Q,dO<br />metadata: LSE,−δ</div>
+      <div class="cell lane" style="grid-row:3">warps 0–15 · KV loaders</div><div class="work kv" style="grid-row:3;grid-column:2/4">indexed cp.async G→S: K[t]</div><div class="work kv dash" style="grid-row:3;grid-column:8/10">indexed cp.async G→S: K[t−1]</div>
+      <div class="cell lane" style="grid-row:4">warp 28 · MMA</div><div class="work mma" style="grid-row:4;grid-column:4/5">wait Q/dO + wait K[t]<br />S=KQᵀ · raw dP=VdOᵀ</div><div class="work red" style="grid-row:4;grid-column:6/7">dKV0/1</div><div class="work state early" style="grid-row:4;grid-column:7/8">dQ += KᵀdS<br />release K[t]</div><div class="work red" style="grid-row:4;grid-column:8/9">dKV4 + dKV2/3</div>
+      <div class="cell lane" style="grid-row:5">warps 16–19 · compute</div><div class="work comp" style="grid-row:5;grid-column:5/6">T2R → P,dS<br />publish SMEM</div><div class="work state" style="grid-row:5;grid-column:10/11">dQ: TMEM→R→sK<br />5× TMA S→G</div>
+      <div class="cell lane" style="grid-row:6">warps 20–27 · reducer</div><div class="work red" style="grid-row:6;grid-column:7/10">T2R → release TMEM → FP32 global atomic</div>
+    </div>
+    <div class="legend"><span><i class="sw q"></i>TMA G→S / S→G</span><span><i class="sw kv"></i>indexed cp.async G→S</span><span><i class="sw mma"></i>tcgen05 MMA</span><span><i class="sw comp"></i>CUDA-core math</span><span><i class="sw red"></i>T2R / atomic</span><span><i class="sw state"></i>persistent state / output</span><span>dashed border = legal steady-state overlap</span></div>
+    <div class="key"><b>Two overlap windows:</b> in the prologue, warp 29's Q/dO TMA and warps 0–15's indexed K[t] gather are in flight together; score MMA begins only after both consumer waits return. In steady state, dQ releases K[t] after its last read, so K[t−1] can be gathered while warp 28 finishes K-independent dKV work and reducer warps drain atomics. The five final TMA stores are dQ0…dQ4 only. <span class="src" title="/Users/van/code/icavan/cudnn-h96/python/cudnn/deepseek_sparse_attention/sparse_attention_backward/dsa_bwd_sm100_h32.py">source L344</span></div>
+  </section>
+
+  <section class="section"><h2>Backward equations · one query token and one 64-row sparse tile</h2>
+    <div class="formulas">
+      <div class="formula comp"><h3><span class="num">1</span>Normalization metadata</h3><div class="eq">δ[h] = Σ<sub>v&lt;512</sub> O[h,v] · dO[h,v]<br />ℓ̃[h] = log(exp(LSE[h]) + exp(sink[h]))<br />stored metadata: −δ[h], −log₂(exp(LSE)+exp(sink))</div><p class="shape">O,dO [32,512] → δ [32] FP32 · LSE,sink [32] → scaled LSE [32]</p></div>
+      <div class="formula mma"><h3><span class="num">2</span>Score and probability</h3><div class="eq">S[r,h] = Σ<sub>d&lt;576</sub> K[i<sub>r</sub>,d] · Q[h,d]<br />P[r,h] = exp(α·S[r,h] − ℓ̃[h])<br /><span class="shape">implementation: exp₂(α·log₂(e)·S − log₂ denominator)</span></div><p class="shape">Ktile [64,576] × Qᵀ [576,32] → S,P [64,32]</p></div>
+      <div class="formula comp"><h3><span class="num">3</span>Probability and score gradients</h3><div class="eq">dP[r,h] = Σ<sub>v&lt;512</sub> V[i<sub>r</sub>,v]·dO[h,v] − δ[h]<br />dS[r,h] = α · P[r,h] · dP[r,h]</div><p class="shape">Vtile [64,512] × dOᵀ [512,32] → dP,dS [64,32]</p></div>
+      <div class="formula state"><h3><span class="num">4</span>dQ and fused latent dKV</h3><div class="eq">dQ[h,:] += Σ<sub>r</sub> dS[r,h] · K[i<sub>r</sub>,:]<br />dKV[i<sub>r</sub>,0:512] += Σ<sub>h</sub>(P[r,h]·dO[h,:] + dS[r,h]·Q[h,0:512])<br />dKV[i<sub>r</sub>,512:576] += Σ<sub>h</sub>dS[r,h]·Q[h,512:576]</div><p class="shape">dQ [32,576] persistent FP32 in TMEM · dKVtile [64,576] T2R then FP32 global atomic</p></div>
+    </div>
+    <p class="note" style="margin-top:10px">i<sub>r</sub> is topk_idxs[q,r]. V is the first 512 columns of the shared latent KV tensor; therefore dV and the first 512 columns of dK are accumulated into the same dKV output. Main equations follow the UMMA operands at <span class="src" title="/Users/van/code/icavan/cudnn-h96/python/cudnn/deepseek_sparse_attention/sparse_attention_backward/dsa_bwd_sm100_h32.py">source L151</span>; softmax implementation at <span class="src" title="/Users/van/code/icavan/cudnn-h96/python/cudnn/deepseek_sparse_attention/sparse_attention_backward/dsa_bwd_sm100_h32.py">source L396</span>.</p>
+  </section>
+
+  <section class="section"><h2>Inputs and outputs</h2><div class="io">
+    <div class="io-card"><h3>Inputs</h3><div class="io-grid"><b>Q</b><span>[Sq,32,576] BF16</span><b>KV</b><span>[Skv,576] BF16; V = KV[:,0:512]</span><b>O, dO</b><span>[Sq,32,512] BF16</span><b>LSE</b><span>[Sq,32] FP32, excluding sink</span><b>topk_idxs</b><span>[Sq,topk] int32; optional topk_length [Sq]</span><b>sink</b><span>[32] FP32</span></div></div>
+    <div class="io-card"><h3>Outputs / workspaces</h3><div class="io-grid"><b>dQ</b><span>[Sq,32,576] BF16</span><b>dKV_acc</b><span>[Skv,576] FP32 global workspace</span><b>dKV</b><span>[Skv,576] BF16 after conversion kernel</span><b>dSink</b><span>[32] FP32 after cross-query reduction</span><b>scaled LSE</b><span>[Sq,32] FP32 preprocess workspace</span><b>−δ</b><span>[Sq,32] FP32 preprocess workspace</span></div></div>
+  </div></section>
+
+  <footer class="section"><p class="note">Manifest-backed source audit · active commit e78a89566491c324cedb46ef3527b26721784879 · no performance data included. Physical views and lifetime reuse are distinguished explicitly.</p></footer>
+</main></div>
+  </foreignObject>
+</svg>
