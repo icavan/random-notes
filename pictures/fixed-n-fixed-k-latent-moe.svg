@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1080" viewBox="0 0 1600 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Fixed-N, Fixed-K LatentMoE: benefits and trade-offs</title>
+  <desc id="desc">A generic LatentMoE diagram. Full-width tokens are projected into a narrower latent space, routed through a fixed number of selected experts, aggregated, and projected back. Routed-token traffic and some activation buffers shrink, while shared projection overhead and a possible information bottleneck are introduced.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#101b32"/>
+    </linearGradient>
+    <linearGradient id="blueFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f63e9" stop-opacity=".27"/>
+      <stop offset="1" stop-color="#3b82f6" stop-opacity=".10"/>
+    </linearGradient>
+    <linearGradient id="cyanFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#06b6d4" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity=".10"/>
+    </linearGradient>
+    <linearGradient id="greenFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10b981" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#34d399" stop-opacity=".09"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#020617" flood-opacity=".38"/>
+    </filter>
+    <style>
+      text { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .title { fill:#f8fafc; font-size:42px; font-weight:700; letter-spacing:.2px; }
+      .subtitle { fill:#94a3b8; font-size:20px; }
+      .metric { fill:#e0f2fe; font-size:22px; font-weight:700; }
+      .metric-sub { fill:#94a3b8; font-size:15px; }
+      .node-title { fill:#f8fafc; font-size:20px; font-weight:700; }
+      .node-main { fill:#dbeafe; font-size:25px; font-weight:700; }
+      .node-sub { fill:#94a3b8; font-size:15px; }
+      .section { fill:#f8fafc; font-size:25px; font-weight:700; }
+      .item-title { fill:#e2e8f0; font-size:19px; font-weight:700; }
+      .item-text { fill:#aab8ca; font-size:16px; }
+      .formula { fill:#dbeafe; font-size:18px; font-weight:600; }
+      .tiny { fill:#94a3b8; font-size:14px; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1080" fill="url(#bg)"/>
+  <circle cx="1440" cy="-10" r="300" fill="#2563eb" opacity=".08"/>
+  <circle cx="80" cy="1040" r="260" fill="#06b6d4" opacity=".06"/>
+
+  <text class="title" x="80" y="78">Fixed-N / Fixed-K LatentMoE</text>
+  <text class="subtitle" x="80" y="113">Shared projections move routed-expert communication into a narrower latent space</text>
+
+  <g transform="translate(80 145)">
+    <rect width="1440" height="94" rx="22" fill="#111d33" stroke="#263854"/>
+    <g transform="translate(58 25)">
+      <text class="metric" x="0" y="20">N stays fixed</text><text class="metric-sub" x="0" y="46">Total routed experts</text>
+      <line x1="260" y1="0" x2="260" y2="46" stroke="#334b6b"/>
+      <text class="metric" x="315" y="20">K stays fixed</text><text class="metric-sub" x="315" y="46">Experts selected per token</text>
+      <line x1="590" y1="0" x2="590" y2="46" stroke="#334b6b"/>
+      <text class="metric" x="645" y="20">Compression α</text><text class="metric-sub" x="645" y="46">Latent width ℓ = d / α</text>
+      <line x1="930" y1="0" x2="930" y2="46" stroke="#334b6b"/>
+      <text class="metric" x="985" y="20">Optional m′ ≈ αm</text><text class="metric-sub" x="985" y="46">Reinvest savings in FFN width</text>
+    </g>
+  </g>
+
+  <text class="section" x="80" y="298">Data flow</text>
+  <g filter="url(#shadow)">
+    <g transform="translate(80 330)">
+      <rect width="190" height="142" rx="20" fill="url(#blueFill)" stroke="#3b82f6"/>
+      <text class="node-title" x="95" y="37" text-anchor="middle">Input token</text>
+      <text class="node-main" x="95" y="78" text-anchor="middle">x ∈ ℝᵈ</text>
+      <text class="node-sub" x="95" y="111" text-anchor="middle">Residual-stream width</text>
+    </g>
+    <g transform="translate(340 330)">
+      <rect width="220" height="142" rx="20" fill="url(#cyanFill)" stroke="#22d3ee"/>
+      <text class="node-title" x="110" y="37" text-anchor="middle">Shared down-proj</text>
+      <text class="node-main" x="110" y="77" text-anchor="middle">W↓ · x</text>
+      <text class="node-sub" x="110" y="109" text-anchor="middle">One projection per layer</text>
+    </g>
+    <g transform="translate(630 330)">
+      <rect width="340" height="142" rx="20" fill="url(#greenFill)" stroke="#34d399"/>
+      <text class="node-title" x="170" y="34" text-anchor="middle">Latent routed experts</text>
+      <text class="node-main" x="170" y="72" text-anchor="middle">Top-K of N</text>
+      <text class="node-sub" x="170" y="103" text-anchor="middle">z ∈ ℝˡ · All-to-All · Expert FFN</text>
+      <text class="node-sub" x="170" y="125" text-anchor="middle">N and K do not scale automatically</text>
+    </g>
+    <g transform="translate(1040 330)">
+      <rect width="220" height="142" rx="20" fill="url(#cyanFill)" stroke="#22d3ee"/>
+      <text class="node-title" x="110" y="37" text-anchor="middle">Shared up-proj</text>
+      <text class="node-main" x="110" y="77" text-anchor="middle">W↑ · zₒᵤₜ</text>
+      <text class="node-sub" x="110" y="109" text-anchor="middle">Restore model width</text>
+    </g>
+    <g transform="translate(1330 330)">
+      <rect width="190" height="142" rx="20" fill="url(#blueFill)" stroke="#3b82f6"/>
+      <text class="node-title" x="95" y="37" text-anchor="middle">Layer output</text>
+      <text class="node-main" x="95" y="78" text-anchor="middle">y ∈ ℝᵈ</text>
+      <text class="node-sub" x="95" y="111" text-anchor="middle">Residual-compatible</text>
+    </g>
+  </g>
+
+  <g stroke="#7dd3fc" stroke-width="3" fill="none">
+    <path d="M 270 401 H 326"/>
+    <path d="M 560 401 H 616"/>
+    <path d="M 970 401 H 1026"/>
+    <path d="M 1260 401 H 1316"/>
+  </g>
+  <g fill="#7dd3fc">
+    <path d="M326 401l-15-9v18z"/>
+    <path d="M616 401l-15-9v18z"/>
+    <path d="M1026 401l-15-9v18z"/>
+    <path d="M1316 401l-15-9v18z"/>
+  </g>
+  <text class="tiny" x="594" y="495" text-anchor="middle">width d → ℓ = d/α</text>
+  <text class="tiny" x="1005" y="495" text-anchor="middle">width ℓ → d</text>
+
+  <g transform="translate(80 535)">
+    <rect width="700" height="390" rx="26" fill="#0f2030" stroke="#1c574e"/>
+    <circle cx="52" cy="52" r="22" fill="#10b981" opacity=".20"/>
+    <path d="M42 52l7 7 14-17" fill="none" stroke="#6ee7b7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text class="section" x="88" y="60">Benefits</text>
+
+    <g transform="translate(42 104)">
+      <circle cx="10" cy="8" r="5" fill="#34d399"/>
+      <text class="item-title" x="31" y="14">Lower communication and routing-buffer cost</text>
+      <text class="item-text" x="31" y="42">All-to-All volume: K·ℓ = K·d/α</text>
+    </g>
+    <g transform="translate(42 182)">
+      <circle cx="10" cy="8" r="5" fill="#34d399"/>
+      <text class="item-title" x="31" y="14">Some activation memory shrinks</text>
+      <text class="item-text" x="31" y="42">Narrower dispatch, combine, permutation, and expert-input buffers</text>
+    </g>
+    <g transform="translate(42 260)">
+      <circle cx="10" cy="8" r="5" fill="#34d399"/>
+      <text class="item-title" x="31" y="14">Savings can fund wider expert FFNs</text>
+      <text class="item-text" x="31" y="42">With ℓ=d/α and m′=αm, main expert weights and FLOPs stay similar</text>
+    </g>
+    <g transform="translate(42 338)">
+      <circle cx="10" cy="8" r="5" fill="#34d399"/>
+      <text class="item-title" x="31" y="14">Model interface remains unchanged</text>
+      <text class="item-text" x="31" y="42">Up-projection restores d for residual connections and later layers</text>
+    </g>
+  </g>
+
+  <g transform="translate(820 535)">
+    <rect width="700" height="390" rx="26" fill="#251c18" stroke="#62451c"/>
+    <circle cx="52" cy="52" r="22" fill="#f59e0b" opacity=".18"/>
+    <path d="M52 37v21M52 68v1" fill="none" stroke="#fcd34d" stroke-width="4" stroke-linecap="round"/>
+    <text class="section" x="88" y="60">Costs and risks</text>
+
+    <g transform="translate(42 104)">
+      <circle cx="10" cy="8" r="5" fill="#fbbf24"/>
+      <text class="item-title" x="31" y="14">Additional shared projection weights</text>
+      <text class="item-text" x="31" y="42">W↓ and W↑ add about 2dℓ parameters per layer, plus training states</text>
+    </g>
+    <g transform="translate(42 182)">
+      <circle cx="10" cy="8" r="5" fill="#fbbf24"/>
+      <text class="item-title" x="31" y="14">Not all activation memory decreases</text>
+      <text class="item-text" x="31" y="42">If m grows, SwiGLU / FFN intermediate activations may become larger</text>
+    </g>
+    <g transform="translate(42 260)">
+      <circle cx="10" cy="8" r="5" fill="#fbbf24"/>
+      <text class="item-title" x="31" y="14">Potential information bottleneck</text>
+      <text class="item-text" x="31" y="42">An overly small ℓ can discard useful features and reduce quality</text>
+    </g>
+    <g transform="translate(42 338)">
+      <circle cx="10" cy="8" r="5" fill="#fbbf24"/>
+      <text class="item-title" x="31" y="14">Speedup depends on the system bottleneck</text>
+      <text class="item-text" x="31" y="42">Projection overhead may offset gains when All-to-All is already cheap</text>
+    </g>
+  </g>
+
+  <g transform="translate(80 958)">
+    <rect width="1440" height="78" rx="20" fill="#14233b" stroke="#2d4669"/>
+    <text class="formula" x="34" y="31">Bottom line:</text>
+    <text class="item-text" x="154" y="31">Routed-token traffic and some buffers shrink; expert weights stay similar only when FFN width scales with α.</text>
+    <text class="tiny" x="34" y="57">Best fit: expert-parallel workloads where All-to-All communication or expert-weight access is a primary bottleneck.</text>
+  </g>
+</svg>
