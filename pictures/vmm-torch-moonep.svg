@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1470" viewBox="0 0 1600 1470" role="img" aria-labelledby="title desc">
+  <title id="title">CUDA VMM, PyTorch Expandable Segments, and MoonEP</title>
+  <desc id="desc">A visual guide to the CUDA virtual memory management API lifecycle, cross-process sharing and teardown, followed by a comparison of PyTorch expandable segments and MoonEP distributed buffers.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+    <marker id="arrow-teal" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#0f766e"/>
+    </marker>
+    <marker id="arrow-slate" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-violet" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#7c3aed"/>
+    </marker>
+    <style>
+      text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+      .title { font-size: 42px; font-weight: 750; letter-spacing: -0.8px; }
+      .subtitle { font-size: 20px; fill: #475569; }
+      .section { font-size: 25px; font-weight: 720; }
+      .panel-title { font-size: 27px; font-weight: 720; }
+      .label { font-size: 18px; font-weight: 680; }
+      .body { font-size: 17px; fill: #334155; }
+      .small { font-size: 15px; fill: #64748b; }
+      .tiny { font-size: 13px; fill: #64748b; }
+      .code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 15px; font-weight: 650; }
+      .code-small { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 13px; font-weight: 650; }
+      .on-dark { fill: #ffffff; }
+      .on-blue-soft { fill: #dbeafe; }
+      .on-teal-soft { fill: #ecfdf5; }
+      .on-violet-soft { fill: #ede9fe; }
+      .on-slate-soft { fill: #cbd5e1; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1470" fill="#ffffff"/>
+
+  <text x="80" y="70" class="title">CUDA Virtual Memory Management (VMM)</text>
+  <text x="80" y="108" class="subtitle">One low-level mechanism. Two very different memory systems.</text>
+  <rect x="1280" y="47" width="240" height="45" rx="22" fill="#ecfeff"/>
+  <text x="1400" y="76" class="label" text-anchor="middle" fill="#0f766e">Virtual ≠ Physical</text>
+
+  <rect x="60" y="145" width="1480" height="470" rx="22" fill="#f8fafc" stroke="#cbd5e1" filter="url(#shadow)"/>
+  <text x="90" y="188" class="section">Core API lifecycle: storage and address space are created independently</text>
+
+  <rect x="565" y="205" width="470" height="48" rx="24" fill="#f1f5f9" stroke="#94a3b8"/>
+  <text x="800" y="235" class="code" text-anchor="middle">cuMemGetAllocationGranularity</text>
+  <text x="1050" y="235" class="small">alignment / size quantum</text>
+  <path d="M720 253 C690 270 500 270 390 287" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow-slate)"/>
+  <path d="M880 253 C910 270 1100 270 1210 287" stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow-slate)"/>
+
+  <rect x="100" y="290" width="590" height="92" rx="15" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+  <rect x="100" y="290" width="118" height="92" rx="15" fill="#10b981"/>
+  <text x="159" y="326" class="label on-dark" text-anchor="middle">PHYSICAL</text>
+  <text x="159" y="350" class="small on-teal-soft" text-anchor="middle">storage</text>
+  <text x="245" y="324" class="code">cuMemCreate</text>
+  <text x="245" y="351" class="body">allocates VRAM → returns an allocation handle</text>
+  <text x="245" y="373" class="small">The handle owns storage metadata; it is not a device pointer.</text>
+
+  <rect x="910" y="290" width="590" height="92" rx="15" fill="#cffafe" stroke="#06b6d4" stroke-width="2"/>
+  <rect x="910" y="290" width="118" height="92" rx="15" fill="#0891b2"/>
+  <text x="969" y="326" class="label on-dark" text-anchor="middle">VIRTUAL</text>
+  <text x="969" y="350" class="small on-teal-soft" text-anchor="middle">address</text>
+  <text x="1055" y="324" class="code">cuMemAddressReserve</text>
+  <text x="1055" y="351" class="body">reserves VA only → returns a base address</text>
+  <text x="1055" y="373" class="small">Consumes no VRAM; the address is not accessible yet.</text>
+
+  <path d="M395 382 C395 414 625 408 650 430" stroke="#0f766e" stroke-width="3" fill="none" marker-end="url(#arrow-teal)"/>
+  <path d="M1205 382 C1205 414 975 408 950 430" stroke="#0f766e" stroke-width="3" fill="none" marker-end="url(#arrow-teal)"/>
+  <rect x="560" y="430" width="480" height="70" rx="15" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/>
+  <text x="800" y="458" class="code" text-anchor="middle">cuMemMap</text>
+  <text x="800" y="484" class="body" text-anchor="middle">attach the physical handle to the reserved VA · still inaccessible</text>
+  <path d="M800 500 V523" stroke="#0f766e" stroke-width="3" fill="none" marker-end="url(#arrow-teal)"/>
+  <rect x="560" y="527" width="480" height="66" rx="15" fill="#0f766e"/>
+  <text x="800" y="554" class="code on-dark" text-anchor="middle">cuMemSetAccess</text>
+  <text x="800" y="579" class="body on-teal-soft" text-anchor="middle">grant per-device read / write → kernels may now use the pointer</text>
+
+  <rect x="100" y="430" width="390" height="163" rx="15" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="125" y="459" class="label" fill="#c2410c">Cross-process sharing</text>
+  <text x="125" y="489" class="code-small">cuMemExportToShareableHandle</text>
+  <text x="125" y="516" class="code-small">cuMemImportFromShareableHandle</text>
+  <text x="125" y="548" class="body">Transfer a reference to the same physical</text>
+  <text x="125" y="571" class="body">allocation — no payload copy.</text>
+
+  <rect x="1110" y="430" width="390" height="163" rx="15" fill="#f5f3ff" stroke="#c4b5fd"/>
+  <text x="1135" y="459" class="label" fill="#6d28d9">Access is explicit</text>
+  <text x="1135" y="489" class="body">Allocation location: where VRAM lives.</text>
+  <text x="1135" y="516" class="body">Access location: which GPU may touch it.</text>
+  <text x="1135" y="548" class="body">They can differ when peer access and</text>
+  <text x="1135" y="571" class="body">fabric topology allow it.</text>
+
+  <path d="M800 615 V642 H410 V665" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#arrow-blue)"/>
+  <path d="M800 642 H1190 V665" stroke="#7c3aed" stroke-width="4" fill="none" marker-end="url(#arrow-violet)"/>
+
+  <rect x="60" y="680" width="720" height="440" rx="22" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <circle cx="104" cy="725" r="22" fill="#2563eb"/>
+  <path d="M94 722 H114 M98 713 H110 M99 731 H109" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <text x="142" y="734" class="panel-title">PyTorch expandable segments</text>
+  <text x="100" y="774" class="small">CUDACachingAllocator · expandable_segments:True</text>
+
+  <rect x="95" y="800" width="650" height="68" rx="13" fill="#ffffff" stroke="#bfdbfe"/>
+  <text x="120" y="827" class="label" fill="#1d4ed8">Problem</text>
+  <text x="120" y="853" class="body">Changing allocation sizes leave slivers across fixed segments.</text>
+
+  <rect x="95" y="885" width="650" height="123" rx="13" fill="#dbeafe"/>
+  <text x="120" y="914" class="label" fill="#1d4ed8">Grow one local segment on demand</text>
+  <rect x="120" y="936" width="130" height="43" rx="8" fill="#2563eb"/>
+  <rect x="254" y="936" width="130" height="43" rx="8" fill="#3b82f6"/>
+  <rect x="388" y="936" width="130" height="43" rx="8" fill="#60a5fa"/>
+  <rect x="522" y="936" width="130" height="43" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="185" y="963" class="small on-dark" text-anchor="middle">mapped</text>
+  <text x="319" y="963" class="small on-dark" text-anchor="middle">mapped</text>
+  <text x="453" y="963" class="small on-dark" text-anchor="middle">mapped</text>
+  <text x="587" y="963" class="small" text-anchor="middle">future growth</text>
+  <path d="M654 957 H711" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue)"/>
+
+  <rect x="95" y="1026" width="650" height="66" rx="13" fill="#2563eb"/>
+  <text x="420" y="1053" class="label on-dark" text-anchor="middle">Goal: allocator flexibility</text>
+  <text x="420" y="1078" class="small on-blue-soft" text-anchor="middle">less fragmentation · local GPU memory · dynamic growth</text>
+
+  <rect x="820" y="680" width="720" height="440" rx="22" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="2"/>
+  <circle cx="864" cy="725" r="22" fill="#7c3aed"/>
+  <circle cx="856" cy="725" r="6" fill="#ffffff"/>
+  <circle cx="872" cy="715" r="6" fill="#ffffff"/>
+  <circle cx="875" cy="733" r="6" fill="#ffffff"/>
+  <path d="M861 722 L868 718 M861 728 L869 731" stroke="#ffffff" stroke-width="2"/>
+  <text x="902" y="734" class="panel-title">MoonEP distributed buffers</text>
+  <text x="860" y="774" class="small">Custom CUDA extension · explicit export / import / peer mapping</text>
+
+  <rect x="855" y="800" width="650" height="68" rx="13" fill="#ffffff" stroke="#ddd6fe"/>
+  <text x="880" y="827" class="label" fill="#6d28d9">Problem</text>
+  <text x="880" y="853" class="body">Per-rank buffers live on different GPUs; kernels need direct addressing.</text>
+
+  <rect x="855" y="885" width="650" height="123" rx="13" fill="#ede9fe"/>
+  <text x="880" y="914" class="label" fill="#6d28d9">Compose one cross-GPU virtual range</text>
+  <rect x="880" y="936" width="142" height="43" rx="8" fill="#7c3aed"/>
+  <rect x="1026" y="936" width="142" height="43" rx="8" fill="#8b5cf6"/>
+  <rect x="1172" y="936" width="142" height="43" rx="8" fill="#a78bfa"/>
+  <rect x="1318" y="936" width="142" height="43" rx="8" fill="#c4b5fd"/>
+  <text x="951" y="963" class="small on-dark" text-anchor="middle">rank 0 VRAM</text>
+  <text x="1097" y="963" class="small on-dark" text-anchor="middle">rank 1 VRAM</text>
+  <text x="1243" y="963" class="small on-dark" text-anchor="middle">rank 2 VRAM</text>
+  <text x="1389" y="963" class="small on-dark" text-anchor="middle">rank 3 VRAM</text>
+  <text x="880" y="998" class="tiny">one contiguous VA · rank-stride addressing · zero-copy peer access</text>
+
+  <rect x="855" y="1026" width="650" height="66" rx="13" fill="#7c3aed"/>
+  <text x="1180" y="1051" class="label on-dark" text-anchor="middle">Multicast metadata path</text>
+  <text x="1180" y="1077" class="code-small on-violet-soft" text-anchor="middle">Create → AddDevice → BindMem → Map → SetAccess → multimem.st</text>
+
+  <rect x="60" y="1150" width="1480" height="200" rx="22" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="90" y="1193" class="section">Safe teardown: mapping lifetime and handle lifetime are separate</text>
+  <g transform="translate(95,1220)">
+    <rect x="0" y="0" width="245" height="82" rx="14" fill="#ffffff" stroke="#fed7aa"/>
+    <text x="122" y="32" class="label" text-anchor="middle" fill="#c2410c">1 · Synchronize users</text>
+    <text x="122" y="58" class="small" text-anchor="middle">no kernel may still touch the VA</text>
+    <path d="M258 41 H306" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-slate)"/>
+
+    <rect x="320" y="0" width="245" height="82" rx="14" fill="#ffffff" stroke="#fed7aa"/>
+    <text x="442" y="32" class="code" text-anchor="middle">2 · cuMemUnmap</text>
+    <text x="442" y="58" class="small" text-anchor="middle">remove backing; keep VA reserved</text>
+    <path d="M578 41 H626" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-slate)"/>
+
+    <rect x="640" y="0" width="245" height="82" rx="14" fill="#ffffff" stroke="#fed7aa"/>
+    <text x="762" y="32" class="code-small" text-anchor="middle">3 · cuMemAddressFree</text>
+    <text x="762" y="58" class="small" text-anchor="middle">release the VA reservation</text>
+    <path d="M898 41 H946" stroke="#ea580c" stroke-width="3" marker-end="url(#arrow-slate)"/>
+
+    <rect x="960" y="0" width="390" height="82" rx="14" fill="#ffedd5" stroke="#fb923c"/>
+    <text x="1155" y="31" class="code" text-anchor="middle">cuMemRelease(handle)</text>
+    <text x="1155" y="57" class="small" text-anchor="middle">drops one handle reference; storage disappears only</text>
+    <text x="1155" y="76" class="tiny" text-anchor="middle">after all mappings and references are gone</text>
+  </g>
+
+  <rect x="60" y="1380" width="1480" height="60" rx="14" fill="#0f172a"/>
+  <text x="800" y="1405" class="label on-dark" text-anchor="middle">Same CUDA primitives, different ownership and purpose</text>
+  <text x="800" y="1428" class="small on-slate-soft" text-anchor="middle">PyTorch's allocator setting does not configure MoonEP's custom VMM storage.</text>
+</svg>
