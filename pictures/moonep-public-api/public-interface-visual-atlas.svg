@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1320" viewBox="0 0 1800 1320" role="img">
+<title>MoonEP public interface visual atlas</title>
+<rect x="0" y="0" width="1800" height="1320" rx="0" fill="#ffffff" stroke="none" stroke-width="1"/>
+<text x="70" y="70" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="42" font-weight="760" fill="#0f172a" text-anchor="start">MoonEP Public Interface Visual Atlas</text>
+<text x="70" y="110" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="18" font-weight="400" fill="#475569" text-anchor="start">按实际导出边界与 Buffer 非私有接口整理；每张图都包含 tensor layout、ownership、分支语义和源码行号。</text>
+<rect x="70" y="145" width="1660" height="75" rx="18" fill="#ecfeff" stroke="#a5f3fc" stroke-width="1"/>
+<text x="95" y="177" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="17" font-weight="720" fill="#0f766e" text-anchor="start">Scope</text>
+<text x="170" y="177" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="15" font-weight="650" fill="#334155" text-anchor="start">moonep.__all__ = [Buffer, MoonEPCommPlan]</text>
+<text x="95" y="203" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="14" font-weight="400" fill="#475569" text-anchor="start">Dispatch 使用更详细的专用图；其余接口由同一 manifest 确定性渲染。</text>
+<rect x="70" y="255" width="790" height="165" rx="18" fill="#f8fafc" stroke="#0f766e" stroke-width="2"/>
+<rect x="70" y="255" width="14" height="165" rx="7" fill="#0f766e" stroke="none" stroke-width="1"/>
+<text x="108" y="299" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="16" font-weight="750" fill="#0f766e" text-anchor="start">01</text>
+<text x="156" y="299" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="22" font-weight="730" fill="#0f172a" text-anchor="start">Buffer(...)</text>
+<text x="108" y="337" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="15" font-weight="400" fill="#475569" text-anchor="start">persistent VMM / NVLink owners and scratch</text>
+<rect x="108" y="360" width="714" height="38" rx="9" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+<text x="125" y="385" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="13" font-weight="600" fill="#64748b" text-anchor="start">public-api/buffer-init-memory-layout.svg</text>
+<rect x="940" y="255" width="790" height="165" rx="18" fill="#f8fafc" stroke="#2563eb" stroke-width="2"/>
+<rect x="940" y="255" width="14" height="165" rx="7" fill="#2563eb" stroke="none" stroke-width="1"/>
+<text x="978" y="299" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="16" font-weight="750" fill="#2563eb" text-anchor="start">02</text>
+<text x="1026" y="299" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="22" font-weight="730" fill="#0f172a" text-anchor="start">Buffer.dispatch</text>
+<text x="978" y="337" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="15" font-weight="400" fill="#475569" text-anchor="start">token-major routes → VM-group rows</text>
+<rect x="978" y="360" width="714" height="38" rx="9" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+<text x="995" y="385" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="13" font-weight="600" fill="#64748b" text-anchor="start">../buffer-dispatch-gmem-layout.svg</text>
+<rect x="70" y="445" width="790" height="165" rx="18" fill="#f8fafc" stroke="#ea580c" stroke-width="2"/>
+<rect x="70" y="445" width="14" height="165" rx="7" fill="#ea580c" stroke="none" stroke-width="1"/>
+<text x="108" y="489" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="16" font-weight="750" fill="#ea580c" text-anchor="start">03</text>
+<text x="156" y="489" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="22" font-weight="730" fill="#0f172a" text-anchor="start">Buffer.prefetch_weight</text>
+<text x="108" y="527" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="15" font-weight="400" fill="#475569" text-anchor="start">remote expert → local prefetch slots</text>
+<rect x="108" y="550" width="714" height="38" rx="9" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+<text x="125" y="575" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="13" font-weight="600" fill="#64748b" text-anchor="start">public-api/buffer-prefetch-weight-gmem-layout.svg</text>
+<rect x="940" y="445" width="790" height="165" rx="18" fill="#f8fafc" stroke="#7c3aed" stroke-width="2"/>
+<rect x="940" y="445" width="14" height="165" rx="7" fill="#7c3aed" stroke="none" stroke-width="1"/>
+<text x="978" y="489" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="16" font-weight="750" fill="#7c3aed" text-anchor="start">04</text>
+<text x="1026" y="489" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="22" font-weight="730" fill="#0f172a" text-anchor="start">Buffer.combine</text>
+<text x="978" y="527" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="15" font-weight="400" fill="#475569" text-anchor="start">VM-group rows → token-major K-sum</text>
+<rect x="978" y="550" width="714" height="38" rx="9" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+<text x="995" y="575" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="13" font-weight="600" fill="#64748b" text-anchor="start">public-api/buffer-combine-gmem-layout.svg</text>
+<rect x="70" y="635" width="790" height="165" rx="18" fill="#f8fafc" stroke="#db2777" stroke-width="2"/>
+<rect x="70" y="635" width="14" height="165" rx="7" fill="#db2777" stroke="none" stroke-width="1"/>
+<text x="108" y="679" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="16" font-weight="750" fill="#db2777" text-anchor="start">05</text>
+<text x="156" y="679" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="22" font-weight="730" fill="#0f172a" text-anchor="start">Buffer.reduce_grad</text>
+<text x="108" y="717" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="15" font-weight="400" fill="#475569" text-anchor="start">remote slot grads → owner experts</text>
+<rect x="108" y="740" width="714" height="38" rx="9" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+<text x="125" y="765" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="13" font-weight="600" fill="#64748b" text-anchor="start">public-api/buffer-reduce-grad-gmem-layout.svg</text>
+<rect x="940" y="635" width="790" height="165" rx="18" fill="#f8fafc" stroke="#0284c7" stroke-width="2"/>
+<rect x="940" y="635" width="14" height="165" rx="7" fill="#0284c7" stroke="none" stroke-width="1"/>
+<text x="978" y="679" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="16" font-weight="750" fill="#0284c7" text-anchor="start">06</text>
+<text x="1026" y="679" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="22" font-weight="730" fill="#0f172a" text-anchor="start">hidden_nvsh_buffer_view</text>
+<text x="978" y="717" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="15" font-weight="400" fill="#475569" text-anchor="start">zero-copy bf16 local shard alias</text>
+<rect x="978" y="740" width="714" height="38" rx="9" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+<text x="995" y="765" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="13" font-weight="600" fill="#64748b" text-anchor="start">public-api/buffer-hidden-nvsh-buffer-view.svg</text>
+<rect x="70" y="825" width="790" height="165" rx="18" fill="#f8fafc" stroke="#0891b2" stroke-width="2"/>
+<rect x="70" y="825" width="14" height="165" rx="7" fill="#0891b2" stroke="none" stroke-width="1"/>
+<text x="108" y="869" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="16" font-weight="750" fill="#0891b2" text-anchor="start">07</text>
+<text x="156" y="869" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="22" font-weight="730" fill="#0f172a" text-anchor="start">router_weight_buffer_view</text>
+<text x="108" y="907" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="15" font-weight="400" fill="#475569" text-anchor="start">zero-copy fp32 metadata alias</text>
+<rect x="108" y="930" width="714" height="38" rx="9" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+<text x="125" y="955" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="13" font-weight="600" fill="#64748b" text-anchor="start">public-api/buffer-router-weight-buffer-view.svg</text>
+<rect x="940" y="825" width="790" height="165" rx="18" fill="#f8fafc" stroke="#dc2626" stroke-width="2"/>
+<rect x="940" y="825" width="14" height="165" rx="7" fill="#dc2626" stroke="none" stroke-width="1"/>
+<text x="978" y="869" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="16" font-weight="750" fill="#dc2626" text-anchor="start">08</text>
+<text x="1026" y="869" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="22" font-weight="730" fill="#0f172a" text-anchor="start">Buffer.destroy</text>
+<text x="978" y="907" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="15" font-weight="400" fill="#475569" text-anchor="start">synchronize and release VMM owners</text>
+<rect x="978" y="930" width="714" height="38" rx="9" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+<text x="995" y="955" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="13" font-weight="600" fill="#64748b" text-anchor="start">public-api/buffer-destroy-lifecycle.svg</text>
+<rect x="70" y="1015" width="790" height="165" rx="18" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+<rect x="70" y="1015" width="14" height="165" rx="7" fill="#64748b" stroke="none" stroke-width="1"/>
+<text x="108" y="1059" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="16" font-weight="750" fill="#64748b" text-anchor="start">09</text>
+<text x="156" y="1059" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="22" font-weight="730" fill="#0f172a" text-anchor="start">Buffer.destroyed</text>
+<text x="108" y="1097" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="15" font-weight="400" fill="#475569" text-anchor="start">host-side lifecycle flag</text>
+<rect x="108" y="1120" width="714" height="38" rx="9" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+<text x="125" y="1145" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="13" font-weight="600" fill="#64748b" text-anchor="start">public-api/buffer-destroyed-property.svg</text>
+<rect x="940" y="1015" width="790" height="165" rx="18" fill="#f8fafc" stroke="#4f46e5" stroke-width="2"/>
+<rect x="940" y="1015" width="14" height="165" rx="7" fill="#4f46e5" stroke="none" stroke-width="1"/>
+<text x="978" y="1059" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="16" font-weight="750" fill="#4f46e5" text-anchor="start">10</text>
+<text x="1026" y="1059" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="22" font-weight="730" fill="#0f172a" text-anchor="start">MoonEPCommPlan / clone</text>
+<text x="978" y="1097" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="15" font-weight="400" fill="#475569" text-anchor="start">persistent routing and dedup metadata</text>
+<rect x="978" y="1120" width="714" height="38" rx="9" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+<text x="995" y="1145" font-family='&quot;SFMono-Regular&quot;, Consolas, monospace' font-size="13" font-weight="600" fill="#64748b" text-anchor="start">public-api/moonep-comm-plan-layout.svg</text>
+<text x="1730" y="1290" font-family='Inter, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, -apple-system, sans-serif' font-size="13" font-weight="500" fill="#64748b" text-anchor="end">Manifest-backed SVG suite · source lines embedded in every diagram</text>
+</svg>
