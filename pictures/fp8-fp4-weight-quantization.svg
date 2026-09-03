@@ -1,0 +1,240 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100" role="img" aria-labelledby="title desc">
+  <title id="title">Block-Scaled FP8 and FP4 Weight Quantization</title>
+  <desc id="desc">A technical diagram explaining dual physical weight layouts, one-dimensional versus two-dimensional block scaling, transpose consistency, and the resulting accuracy and efficiency trade-offs.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="blueGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6aa6ed"/>
+      <stop offset="1" stop-color="#7588e8"/>
+    </linearGradient>
+    <linearGradient id="violetGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9b8ce8"/>
+      <stop offset="1" stop-color="#7b7fe0"/>
+    </linearGradient>
+    <linearGradient id="greenGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#55c7a9"/>
+      <stop offset="1" stop-color="#31a78a"/>
+    </linearGradient>
+    <linearGradient id="amberGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3c36e"/>
+      <stop offset="1" stop-color="#e9a957"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#8090a6" flood-opacity="0.14"/>
+    </filter>
+    <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" ref="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6a9ee6"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#42b99a"/>
+    </marker>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+      .panel { fill: #ffffff; stroke: #d8e2ef; stroke-width: 1.5; }
+      .panel-soft { fill: #fbfcfe; stroke: #d8e2ef; stroke-width: 1.5; }
+      .title { fill: #172033; font-size: 45px; font-weight: 400; letter-spacing: -1.2px; }
+      .subtitle { fill: #65748a; font-size: 20px; font-weight: 400; }
+      .section { fill: #24324a; font-size: 24px; font-weight: 400; }
+      .label { fill: #2b3950; font-size: 18px; font-weight: 400; }
+      .body { fill: #526278; font-size: 16px; font-weight: 400; }
+      .small { fill: #66778d; font-size: 14px; font-weight: 400; }
+      .tiny { fill: #7d8ca1; font-size: 12px; font-weight: 400; }
+      .formula { fill: #23314a; font-size: 18px; font-weight: 400; }
+      .chipText { fill: #ffffff; font-size: 13px; font-weight: 400; letter-spacing: .35px; }
+      .gridLine { stroke: #c4d0de; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1100" fill="url(#bg)"/>
+  <circle cx="1420" cy="40" r="260" fill="#7ea9e6" opacity="0.04" filter="url(#softGlow)"/>
+  <circle cx="60" cy="1020" r="250" fill="#72c9b2" opacity="0.035" filter="url(#softGlow)"/>
+
+  <!-- Header -->
+  <g class="sans">
+    <text x="72" y="82" class="title">Block-Scaled FP8 / FP4 Weight Quantization</text>
+    <text x="74" y="119" class="subtitle">Physical layout duplication solves GEMM locality; 2D scaling primarily solves transpose consistency.</text>
+    <rect x="1310" y="65" width="218" height="42" rx="21" fill="#f5f8fc" stroke="#d4dfec"/>
+    <circle cx="1341" cy="86" r="7" fill="#42b99a"/>
+    <text x="1360" y="92" class="small">Training data path</text>
+  </g>
+
+  <!-- Top left: training equations -->
+  <g filter="url(#shadow)">
+    <rect x="72" y="162" width="530" height="330" rx="22" class="panel"/>
+  </g>
+  <g class="sans">
+    <text x="104" y="205" class="section">1 · One weight, two GEMM directions</text>
+    <text x="104" y="236" class="body">The same parameter is consumed with opposite orientations.</text>
+
+    <rect x="104" y="267" width="466" height="69" rx="14" fill="#f4f8fd" stroke="#c9daed"/>
+    <rect x="119" y="282" width="76" height="38" rx="10" fill="url(#blueGlow)"/>
+    <text x="157" y="306" text-anchor="middle" class="chipText">FPROP</text>
+    <text x="219" y="307" class="formula mono">Y = X · Wᵀ</text>
+    <text x="435" y="306" class="small">uses Wᵀ</text>
+
+    <rect x="104" y="349" width="466" height="69" rx="14" fill="#f7f6fd" stroke="#d8d3ed"/>
+    <rect x="119" y="364" width="76" height="38" rx="10" fill="url(#violetGlow)"/>
+    <text x="157" y="388" text-anchor="middle" class="chipText">DGRAD</text>
+    <text x="219" y="389" class="formula mono">dX = dY · W</text>
+    <text x="435" y="388" class="small">uses W</text>
+
+    <rect x="104" y="433" width="466" height="39" rx="11" fill="#f8fafc" stroke="#dbe3ec"/>
+    <text x="120" y="458" class="small mono">WGRAD: dW = dYᵀ · X</text>
+    <text x="392" y="458" class="tiny">(does not consume W)</text>
+  </g>
+
+  <!-- Top right: dual layout -->
+  <g filter="url(#shadow)">
+    <rect x="626" y="162" width="902" height="330" rx="22" class="panel"/>
+  </g>
+  <g class="sans">
+    <text x="658" y="205" class="section">2 · Materialize both GEMM-ready layouts</text>
+    <text x="658" y="236" class="body">Numerically related, physically different: each keeps its reduction dimension contiguous.</text>
+
+    <!-- W matrix -->
+    <rect x="682" y="274" width="210" height="136" rx="15" fill="#f8fbfe" stroke="#c9d9ea"/>
+    <text x="700" y="301" class="label">Rowwise W</text>
+    <text x="700" y="323" class="tiny mono">shape [N, K] · contiguous K</text>
+    <g transform="translate(702 342)">
+      <rect width="168" height="48" rx="5" fill="#edf4fb"/>
+      <path d="M28 0V48 M56 0V48 M84 0V48 M112 0V48 M140 0V48" class="gridLine"/>
+      <path d="M0 16H168 M0 32H168" class="gridLine"/>
+      <rect x="0" y="0" width="84" height="16" rx="2" fill="#76ace7" opacity=".82"/>
+      <path d="M22 8H72" stroke="#ffffff" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    </g>
+
+    <!-- transpose arrow -->
+    <path d="M918 342 C 970 307, 1025 307, 1074 342" fill="none" stroke="#6a9ee6" stroke-width="2.4" marker-end="url(#arrowBlue)"/>
+    <path d="M1074 365 C 1025 401, 970 401, 918 365" fill="none" stroke="#42b99a" stroke-width="2.4" marker-end="url(#arrowGreen)"/>
+    <text x="996" y="335" text-anchor="middle" class="small">transpose / swizzle</text>
+    <text x="996" y="392" text-anchor="middle" class="tiny">cached until weight update</text>
+
+    <!-- WT matrix -->
+    <rect x="1102" y="274" width="210" height="136" rx="15" fill="#f7fcfa" stroke="#bddfd5"/>
+    <text x="1120" y="301" class="label">Columnwise Wᵀ</text>
+    <text x="1120" y="323" class="tiny mono">shape [K, N] · contiguous N</text>
+    <g transform="translate(1122 342)">
+      <rect width="168" height="48" rx="5" fill="#eaf6f2"/>
+      <path d="M28 0V48 M56 0V48 M84 0V48 M112 0V48 M140 0V48" class="gridLine"/>
+      <path d="M0 16H168 M0 32H168" class="gridLine"/>
+      <rect x="0" y="0" width="84" height="16" rx="2" fill="#56bfa3" opacity=".82"/>
+      <path d="M22 8H72" stroke="#ffffff" stroke-width="2" marker-end="url(#arrowGreen)"/>
+    </g>
+
+    <rect x="1340" y="274" width="156" height="136" rx="15" fill="#f8fafc" stroke="#d8e1eb"/>
+    <text x="1358" y="301" class="label">Why two?</text>
+    <text x="1358" y="329" class="small">• coalesced LDG</text>
+    <text x="1358" y="354" class="small">• TMA-friendly tile</text>
+    <text x="1358" y="379" class="small">• WGMMA layout</text>
+    <text x="1358" y="401" class="tiny">Avoid hot-path reorder</text>
+
+    <rect x="682" y="429" width="814" height="38" rx="11" fill="#f7f9fc" stroke="#d9e2ed"/>
+    <text x="700" y="454" class="small">
+      A transpose-equivalent quantization can still require two buffers: <tspan fill="#34445c" font-weight="400">numerical equivalence ≠ memory contiguity.</tspan>
+    </text>
+  </g>
+
+  <!-- Lower comparison -->
+  <g filter="url(#shadow)">
+    <rect x="72" y="522" width="716" height="432" rx="22" class="panel-soft"/>
+    <rect x="812" y="522" width="716" height="432" rx="22" class="panel-soft"/>
+  </g>
+
+  <!-- 1D -->
+  <g class="sans">
+    <rect x="104" y="554" width="70" height="34" rx="17" fill="url(#amberGlow)"/>
+    <text x="139" y="576" text-anchor="middle" class="chipText">1D</text>
+    <text x="190" y="578" class="section">1 × 16 weight scaling</text>
+    <text x="104" y="612" class="body">Each short row segment gets its own scale.</text>
+
+    <!-- 1D grid -->
+    <g transform="translate(104 644)">
+      <rect width="300" height="148" rx="12" fill="#ffffff" stroke="#d8e1eb"/>
+      <g>
+        <rect x="18" y="18" width="124" height="22" rx="4" fill="#efc87f" opacity=".92"/>
+        <rect x="158" y="18" width="124" height="22" rx="4" fill="#e8ad82" opacity=".92"/>
+        <rect x="18" y="51" width="124" height="22" rx="4" fill="#f2d395" opacity=".92"/>
+        <rect x="158" y="51" width="124" height="22" rx="4" fill="#e7bd75" opacity=".92"/>
+        <rect x="18" y="84" width="124" height="22" rx="4" fill="#f3d7a2" opacity=".92"/>
+        <rect x="158" y="84" width="124" height="22" rx="4" fill="#e79b91" opacity=".92"/>
+        <rect x="18" y="117" width="124" height="14" rx="4" fill="#ecc483" opacity=".92"/>
+        <rect x="158" y="117" width="124" height="14" rx="4" fill="#efc47a" opacity=".92"/>
+      </g>
+      <text x="80" y="34" text-anchor="middle" class="tiny" fill="#5a4931">s₀</text>
+      <text x="220" y="34" text-anchor="middle" class="tiny" fill="#5a4931">s₁</text>
+    </g>
+
+    <g transform="translate(430 647)">
+      <text x="0" y="6" class="label">Fine-grained</text>
+      <circle cx="8" cy="36" r="5" fill="#e9ac55"/>
+      <text x="22" y="42" class="small">lower local quantization error</text>
+      <circle cx="8" cy="68" r="5" fill="#e9ac55"/>
+      <text x="22" y="74" class="small">more scales / metadata</text>
+      <circle cx="8" cy="100" r="5" fill="#df7d83"/>
+      <text x="22" y="106" class="small">direction-dependent groups</text>
+    </g>
+
+    <rect x="104" y="818" width="652" height="98" rx="14" fill="#fff7f7" stroke="#edc2c6"/>
+    <text x="126" y="849" class="formula mono" fill="#a9515c">Qrow(W)ᵀ ≠ Qrow(Wᵀ)</text>
+    <text x="126" y="878" class="body">FPROP and DGRAD may see different effective weights.</text>
+    <text x="126" y="901" class="tiny">Better reconstruction does not guarantee a consistent chain rule.</text>
+  </g>
+
+  <!-- 2D -->
+  <g class="sans">
+    <rect x="844" y="554" width="70" height="34" rx="17" fill="url(#greenGlow)"/>
+    <text x="879" y="576" text-anchor="middle" class="chipText">2D</text>
+    <text x="930" y="578" class="section">16 × 16 weight scaling</text>
+    <text x="844" y="612" class="body">One scale is shared by the entire square tile.</text>
+
+    <!-- 2D grid -->
+    <g transform="translate(844 644)">
+      <rect width="300" height="148" rx="12" fill="#ffffff" stroke="#d8e1eb"/>
+      <rect x="18" y="18" width="124" height="113" rx="6" fill="#63bea6" opacity=".88"/>
+      <rect x="158" y="18" width="124" height="113" rx="6" fill="#6ea8d4" opacity=".88"/>
+      <path d="M18 46H142 M18 74H142 M18 102H142 M49 18V131 M80 18V131 M111 18V131" stroke="#ffffff" stroke-opacity=".38"/>
+      <path d="M158 46H282 M158 74H282 M158 102H282 M189 18V131 M220 18V131 M251 18V131" stroke="#ffffff" stroke-opacity=".38"/>
+      <text x="80" y="81" text-anchor="middle" class="label">s₀</text>
+      <text x="220" y="81" text-anchor="middle" class="label">s₁</text>
+    </g>
+
+    <g transform="translate(1170 647)">
+      <text x="0" y="6" class="label">Transpose-invariant</text>
+      <circle cx="8" cy="36" r="5" fill="#42b99a"/>
+      <text x="22" y="42" class="small">same values in both directions</text>
+      <circle cx="8" cy="68" r="5" fill="#42b99a"/>
+      <text x="22" y="74" class="small">fewer scales; easy to cache</text>
+      <circle cx="8" cy="100" r="5" fill="#e9ac55"/>
+      <text x="22" y="106" class="small">coarser reconstruction</text>
+    </g>
+
+    <rect x="844" y="818" width="652" height="98" rx="14" fill="#f2fbf8" stroke="#b4ded2"/>
+    <text x="866" y="849" class="formula mono" fill="#247c68">Q₂D(W)ᵀ = Q₂D(Wᵀ)</text>
+    <text x="866" y="878" class="body">FPROP and DGRAD use the same effective weights.</text>
+    <text x="866" y="901" class="tiny">The scale tile transposes with the data tile.</text>
+  </g>
+
+  <!-- Footer verdict -->
+  <g filter="url(#shadow)">
+    <rect x="72" y="982" width="1456" height="76" rx="20" fill="#f6f9fc" stroke="#d6e0eb"/>
+  </g>
+  <g class="sans">
+    <rect x="94" y="1001" width="230" height="38" rx="19" fill="url(#violetGlow)"/>
+    <text x="209" y="1025" text-anchor="middle" class="chipText">NVIDIA NVFP4 DEFAULT</text>
+    <text x="354" y="1017" class="label">Activations &amp; gradients: 1D</text>
+    <text x="354" y="1041" class="small">Fine granularity for dynamic token data</text>
+    <line x1="755" y1="1001" x2="755" y2="1039" stroke="#d4deea"/>
+    <text x="790" y="1017" class="label">Weights: 2D</text>
+    <text x="790" y="1041" class="small">Transpose consistency first; locality and reuse remain important</text>
+    <text x="1498" y="1041" text-anchor="end" class="tiny">Conceptual summary · block sizes shown for NVFP4</text>
+  </g>
+</svg>
