@@ -1,5 +1,5 @@
-site_name: icavan / systems notes
-site_description: Technical notes on GPU kernels, attention systems, and distributed machine learning.
+site_name: Random notes
+site_description: Personal notes on engineering, systems, AI, and things worth understanding.
 site_author: icavan
 site_url: https://icavan.github.io/random-notes/
 repo_name: icavan/random-notes
