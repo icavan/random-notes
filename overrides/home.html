@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block header %}
+  <header class="editorial-system-header" data-md-component="header" hidden></header>
+{% endblock %}
+{% block tabs %}{% endblock %}
+{% block site_nav %}{% endblock %}
+
+{% block container %}
+  <div class="editorial-shell">
+    <aside class="profile-rail" aria-label="Site navigation">
+      <div class="profile-rail__top">
+        <a class="profile-brand" href="{{ nav.homepage.url | url }}" aria-label="icavan home">icavan</a>
+        <img class="profile-avatar" src="{{ 'assets/icavan-avatar.jpg' | url }}" width="88" height="88" alt="icavan GitHub avatar">
+        <p class="profile-tagline">technical notes<br>on systems and AI</p>
+      </div>
+
+      <nav class="profile-nav" aria-label="Primary">
+        <a class="is-active" href="{{ nav.homepage.url | url }}">Home</a>
+        <a href="#recent-notes">Archive</a>
+        <a href="#topics">Topics</a>
+        <a href="{{ 'about/' | url }}">About</a>
+      </nav>
+
+      <div class="profile-utilities">
+        <a href="https://github.com/icavan" aria-label="icavan on GitHub">
+          <span class="profile-utility__icon">{% include ".icons/fontawesome/brands/github.svg" %}</span>
+          <span>GitHub</span>
+        </a>
+        <label for="__search" tabindex="0" role="button" aria-label="Search notes">
+          <span class="profile-utility__icon">{% include ".icons/material/magnify.svg" %}</span>
+          <span>Search</span>
+          <kbd>⌘ K</kbd>
+        </label>
+        <button class="profile-theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">
+          <span class="profile-utility__icon">{% include ".icons/material/white-balance-sunny.svg" %}</span>
+          <span>Theme</span>
+        </button>
+      </div>
+
+      <div class="profile-rail__footer">
+        <p>An engineer writing through the details of GPU kernels, attention, and distributed systems.</p>
+        <span>© 2026 icavan</span>
+      </div>
+    </aside>
+
+    <article class="editorial-home">
+      <header class="editorial-intro">
+        <h1>Notes on GPU Systems</h1>
+        <p>Technical notes, readings, and experiments on GPU systems, distributed training, and efficient machine learning. A personal log of what I’m learning and building.</p>
+      </header>
+
+      <section class="latest-note" aria-labelledby="latest-note-heading">
+        <p class="section-label" id="latest-note-heading">Latest Note</p>
+        <div class="latest-note__grid">
+          <a class="latest-note__figure" href="{{ 'DEEPSEEK_V41_CED_CSA2_ARCHITECTURE/' | url }}" aria-label="Read DeepSeek V4.1 CED and CSA2 Architecture Notes">
+            <img src="{{ 'pictures/deepseek-v41-ced-vs-decoder-only-en.png' | url }}" alt="DeepSeek V4.1 causal encoder and decoder architecture diagram">
+          </a>
+          <div class="latest-note__copy">
+            <time datetime="2026-09-24">24 Sep 2026</time>
+            <h2><a href="{{ 'DEEPSEEK_V41_CED_CSA2_ARCHITECTURE/' | url }}">DeepSeek V4.1 CED and CSA2 Architecture Notes</a></h2>
+            <p>A detailed look at causal encoding, compressed sparse attention, cross-layer KV reuse, and the training and inference trade-offs behind the architecture.</p>
+            <a class="read-more" href="{{ 'DEEPSEEK_V41_CED_CSA2_ARCHITECTURE/' | url }}">Read more <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="recent-notes" id="recent-notes" aria-labelledby="recent-notes-heading">
+        <div class="section-heading">
+          <h2 id="recent-notes-heading">Recent Notes</h2>
+          <a href="#topics">View by topic <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="notes-grid">
+          <article class="note-row">
+            <time datetime="2026-09-24">24 Sep<br>2026</time>
+            <div><h3><a href="{{ 'DSA_256K_QPAIR_KV_OVERLAP_OBSERVATIONS/' | url }}">Adjacent-Query KV-Index Overlap in 256K DSA Training</a></h3><p>Measured KV-index locality for adjacent queries in long-context training.</p></div>
+          </article>
+          <article class="note-row">
+            <time datetime="2026-09-22">22 Sep<br>2026</time>
+            <div><h3><a href="{{ 'CUDA_VMM_COMMUNICATION_LAYERS/' | url }}">CUDA VMM and GPU Communication Layers</a></h3><p>How virtual memory, fabric handles, NCCL, NVSHMEM, and MoonEP fit together.</p></div>
+          </article>
+          <article class="note-row">
+            <time datetime="2026-09-03">03 Sep<br>2026</time>
+            <div><h3><a href="{{ 'fp8-fp4-weight-quantization/' | url }}">Block-Scaled FP8 and FP4 Weight Quantization</a></h3><p>Physical layouts, transpose consistency, and 1D versus 2D scaling.</p></div>
+          </article>
+          <article class="note-row">
+            <time datetime="2026-09-03">03 Sep<br>2026</time>
+            <div><h3><a href="{{ 'MOONEP_PUBLIC_API_VISUAL_GUIDE/' | url }}">MoonEP Public API Visual Guide</a></h3><p>Buffer ownership, zero-copy views, communication plans, and lifecycle.</p></div>
+          </article>
+          <article class="note-row">
+            <time datetime="2026-08-16">16 Aug<br>2026</time>
+            <div><h3><a href="{{ 'FLASHINFER_CAKE_KDA_SMALL_BH_K1_PARALLELISM/' | url }}">Scaling K1 Parallelism for Small B × H</a></h3><p>Owner-helper scheduling and bounded ring mailboxes for CAKE KDA.</p></div>
+          </article>
+          <article class="note-row">
+            <time datetime="2026-08-10">10 Aug<br>2026</time>
+            <div><h3><a href="{{ 'FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION/' | url }}">Engineering a Fast Hadamard Transform on Modern NVIDIA GPUs</a></h3><p>Butterfly factorization, memory hierarchy, and CTA-dispatch amortization.</p></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="topic-index" id="topics" aria-labelledby="topic-index-heading">
+        <p class="section-label" id="topic-index-heading">Browse by Topic</p>
+        <div class="topic-index__links">
+          <a href="{{ 'FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION/' | url }}"><span>01</span> GPU Kernels</a>
+          <a href="{{ 'dsa-backward-formula-derivation-and-tensor-shapes/' | url }}"><span>02</span> Attention Systems</a>
+          <a href="{{ 'CUDA_VMM_COMMUNICATION_LAYERS/' | url }}"><span>03</span> Distributed Systems</a>
+        </div>
+      </section>
+    </article>
+
+    {% include "partials/search.html" %}
+  </div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

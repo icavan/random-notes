@@ -11,6 +11,7 @@ site_dir: ../random-notes-site-build
 
 theme:
   name: material
+  custom_dir: overrides
   language: en
   font:
     text: Inter
