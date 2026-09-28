@@ -1,0 +1,114 @@
+site_name: icavan / systems notes
+site_description: Technical notes on GPU kernels, attention systems, and distributed machine learning.
+site_author: icavan
+site_url: https://icavan.github.io/random-notes/
+repo_name: icavan/random-notes
+repo_url: https://github.com/icavan/random-notes
+edit_uri: edit/main/
+
+docs_dir: .site-content
+site_dir: ../random-notes-site-build
+
+theme:
+  name: material
+  language: en
+  font:
+    text: Inter
+    code: JetBrains Mono
+  favicon: assets/favicon.svg
+  logo: assets/logo.svg
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.action.edit
+    - toc.follow
+
+nav:
+  - Home: index.md
+  - GPU Kernels:
+      - Engineering a Fast Hadamard Transform: FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md
+      - Block-Scaled FP8 and FP4 Quantization: fp8-fp4-weight-quantization.md
+  - Attention Systems:
+      - DeepSeek V4.1 CED and CSA2: DEEPSEEK_V41_CED_CSA2_ARCHITECTURE.md
+      - DSA Backward Formula and Tensor Shapes: dsa-backward-formula-derivation-and-tensor-shapes.md
+      - Adjacent-Query KV Overlap at 256K: DSA_256K_QPAIR_KV_OVERLAP_OBSERVATIONS.md
+      - FlashInfer CAKE KDA Prefill: FLASHINFER_CAKE_KDA_PREFILL_HIGHLIGHTS.md
+      - CAKE KDA Small-BH Parallelism: FLASHINFER_CAKE_KDA_SMALL_BH_K1_PARALLELISM.md
+      - FlashInfer PR 4262 Optimizations: FLASHINFER_PR_4262_CORE_OPTIMIZATIONS.md
+  - Distributed Systems:
+      - CUDA VMM and Communication Layers: CUDA_VMM_COMMUNICATION_LAYERS.md
+      - MoonEP Public API Visual Guide: MOONEP_PUBLIC_API_VISUAL_GUIDE.md
+  - About: about.md
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      title: On this page
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: math
+          class: arithmatex
+          format: !!python/object/apply:pymdownx.arithmatex.arithmatex_fenced_format []
+  - pymdownx.tabbed:
+      alternate_style: true
+
+plugins:
+  - search:
+      lang: en
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+  - javascripts/site.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/icavan
+      name: icavan on GitHub
+
+copyright: Built from working notes by icavan.
