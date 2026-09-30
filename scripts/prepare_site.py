@@ -8,6 +8,7 @@ import shutil
 ROOT = Path(__file__).resolve().parent.parent
 STAGE = ROOT / ".site-content"
 CONTENT_MARKDOWN = (
+    "B200_LOCALITY_DOMAIN_PROBE.md",
     "CUDA_VMM_COMMUNICATION_LAYERS.md",
     "DEEPSEEK_V41_CED_CSA2_ARCHITECTURE.md",
     "DSA_256K_QPAIR_KV_OVERLAP_OBSERVATIONS.md",

@@ -51,6 +51,7 @@ nav:
   - Home: index.md
   - GPU Kernels:
       - Engineering a Fast Hadamard Transform: FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md
+      - B200 Locality Domain Probe: B200_LOCALITY_DOMAIN_PROBE.md
       - Block-Scaled FP8 and FP4 Quantization: fp8-fp4-weight-quantization.md
   - Attention Systems:
       - DeepSeek V4.1 CED and CSA2: DEEPSEEK_V41_CED_CSA2_ARCHITECTURE.md
