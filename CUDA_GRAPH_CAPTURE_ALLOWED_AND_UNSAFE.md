@@ -5,6 +5,8 @@ and control flow on every iteration. A graph-private memory pool makes many
 temporary CUDA tensors capturable, but it does not make arbitrary dynamic
 behavior safe.
 
+![CUDA Graph capture: allowed and unsafe patterns](pictures/cuda-graph-capture-allowed-vs-unsafe.png)
+
 ## Usually allowed
 
 | Pattern | Requirement |
