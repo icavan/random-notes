@@ -54,6 +54,7 @@ nav:
       - B200 Locality Domain Probe: B200_LOCALITY_DOMAIN_PROBE.md
       - Block-Scaled FP8 and FP4 Quantization: fp8-fp4-weight-quantization.md
   - Attention Systems:
+      - KDA Recompute Memory - FLA vs FROST: KDA_RECOMPUTE_MEMORY_FLA_VS_FROST.md
       - DeepSeek V4.1 CED and CSA2: DEEPSEEK_V41_CED_CSA2_ARCHITECTURE.md
       - DSA Backward Formula and Tensor Shapes: dsa-backward-formula-derivation-and-tensor-shapes.md
       - Adjacent-Query KV Overlap at 256K: DSA_256K_QPAIR_KV_OVERLAP_OBSERVATIONS.md
