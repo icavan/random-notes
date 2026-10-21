@@ -78,6 +78,7 @@ hide:
 
 | Note | Topic | Focus |
 | --- | --- | --- |
+| [Deterministic DSA Backward: Private Shards to Cluster Relays](DSA_BACKWARD_DETERMINISM_PRIVATE_SHARDS_TO_CLUSTER_RELAYS.md) | Attention | Bounded waves, row-aware acquire/release relays, fixed reductions, and million-token workspace scaling |
 | [KDA Recompute Memory: FLA vs FROST](KDA_RECOMPUTE_MEMORY_FLA_VS_FROST.md) | Attention | Measured peaks, source-based memory accounting, and gradient-buffer lifetimes |
 | [B200 Locality Domain Probe](B200_LOCALITY_DOMAIN_PROBE.md) | Kernels | Per-SM pointer chasing, topology classification, and domain-aware scheduling |
 | [DSA Backward Formula and Tensor Shapes](dsa-backward-formula-derivation-and-tensor-shapes.md) | Attention | Forward-to-backward derivation and layout map |

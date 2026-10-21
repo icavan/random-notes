@@ -55,6 +55,7 @@ nav:
       - Block-Scaled FP8 and FP4 Quantization: fp8-fp4-weight-quantization.md
   - Attention Systems:
       - cuDNN-FE Flex Attention vs FA4 Sparse Masks: CUDNN_FE_FLEX_ATTENTION_VS_FA4_SPARSE_MASK.md
+      - Deterministic DSA Backward - Private Shards to Cluster Relays: DSA_BACKWARD_DETERMINISM_PRIVATE_SHARDS_TO_CLUSTER_RELAYS.md
       - KDA Recompute Memory - FLA vs FROST: KDA_RECOMPUTE_MEMORY_FLA_VS_FROST.md
       - DeepSeek V4.1 CED and CSA2: DEEPSEEK_V41_CED_CSA2_ARCHITECTURE.md
       - DSA Backward Formula and Tensor Shapes: dsa-backward-formula-derivation-and-tensor-shapes.md
