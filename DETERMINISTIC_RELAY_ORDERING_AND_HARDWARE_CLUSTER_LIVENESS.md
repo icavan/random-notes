@@ -17,6 +17,14 @@ The concise conclusion is:
 
 This article complements [Deterministic DSA Backward: From Private FP32 Shards to Row-Aware Cluster Relays](DSA_BACKWARD_DETERMINISM_PRIVATE_SHARDS_TO_CLUSTER_RELAYS.md), which covers the larger memory and performance trade-off.
 
+## End-to-End SM90 Execution Map
+
+[![SM90 deterministic DSA backward: bounded waves, hardware CTA clusters, and ordered synchronization](pictures/sm90-deterministic-dsa-relay-mechanisms.png)](pictures/sm90-deterministic-dsa-relay-mechanisms.png)
+
+The concrete SM90 lowering adds a software scheduling layer around the row relay. It bounds one query wave to 128 logical CTAs, serializes head tiles, and lowers each logical relay group to one or more physical cluster launches. Logical `C4`, `C8`, and `C16` use one physical phase; logical `C32` and `C64` use two and four ordered physical `C16` phases. Within a phase, hardware co-scheduling supplies the residency guarantee while row-aware GPU-scope release/acquire operations publish each predecessor's `dKV` updates. Between phases, head tiles, query waves, and the final `dKV` postprocess, full kernel completion in one CUDA stream supplies the global happens-before edges.
+
+This implementation uses the hardware cluster launch and cluster-local CTA rank, but it does not use the Cooperative Groups API, `cluster.sync()`, `grid.sync()`, distributed shared memory, or host synchronization. Cooperative Groups remains the programming abstraction for defining collaborating threads; the thread-block cluster launch is the mechanism that supplies the physical co-scheduling guarantee needed by each relay phase.
+
 ## Three Terms That Must Not Be Conflated
 
 The word *cluster* is often overloaded. A precise description needs three independent quantities.
