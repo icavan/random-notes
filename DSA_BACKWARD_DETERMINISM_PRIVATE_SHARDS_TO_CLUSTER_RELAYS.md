@@ -10,6 +10,14 @@ The two implementations are represented by [cuDNN Frontend PR #810](https://gith
 
 This comparison focuses on the generic SM100-family M64 deterministic path. The specialized H128 D512/D576 two-CTA envelopes retain their separate fixed-owner design.
 
+## Current SM90 Relay Implementation Map
+
+[![SM90 deterministic DSA backward: bounded waves, hardware CTA clusters, and ordered synchronization](pictures/sm90-deterministic-dsa-relay-mechanisms.png)](pictures/sm90-deterministic-dsa-relay-mechanisms.png)
+
+The current SM90 lowering applies the same bounded-wave and row-aware relay principles with an explicit separation between logical width and physical execution. Each query wave contains 128 logical CTAs. Logical `C4`, `C8`, and `C16` use one hardware-cluster phase, while logical `C32` and `C64` reuse four or two FP32 planes through two or four ordered physical `C16` launches. Hardware co-scheduling supplies liveness within a phase, GPU-scope release/acquire operations fix each conflicting row's writer order, and full kernel completion in one CUDA stream orders phases, head tiles, waves, and the final `dKV` postprocess.
+
+The diagram also separates the Cooperative Groups programming model from the hardware-cluster scheduling guarantee. This SM90 implementation uses cluster launch and cluster-local CTA rank, but does not call the Cooperative Groups synchronization APIs, use distributed shared memory, or require host synchronization. The SM100 measurements and policies below remain the historical design comparison that motivated the relay.
+
 ## TL;DR
 
 - Deterministic `dKV` requires a repeatable FP32 addition order for all query CTAs that update the same KV row. It does not require all sparse work to be globally serialized.
