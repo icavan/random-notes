@@ -8,6 +8,7 @@ import shutil
 ROOT = Path(__file__).resolve().parent.parent
 STAGE = ROOT / ".site-content"
 CONTENT_MARKDOWN = (
+    "DSPARK_ATTENTION_KERNEL_SELECTION_AND_OPTIMIZATION.md",
     "CUDNN_FE_FLEX_ATTENTION_VS_FA4_SPARSE_MASK.md",
     "KDA_RECOMPUTE_MEMORY_FLA_VS_FROST.md",
     "B200_LOCALITY_DOMAIN_PROBE.md",
