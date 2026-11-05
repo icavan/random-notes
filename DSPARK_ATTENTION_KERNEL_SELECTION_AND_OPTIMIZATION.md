@@ -91,7 +91,7 @@ visible = (
 
 We plugged this **exact interval callback into FA4's existing `mask_mod` interface**. We did not change the FA4 attention core, sparse tile lists, or MMA arithmetic. The chart calls it “Patched FA4”; more precisely, it is a specialized adapter.
 
-This alone reduces complete F+B from **48.59 to 30.16 ms**. Output is bitwise identical to the generic FA4 path; maximum gradient relative L2 is `9.06e-6`.
+This alone reduces complete F+B from **48.59 to 30.16 ms**. The forward output is bitwise identical to the generic FA4 path; maximum gradient relative L2 is `9.06e-6`.
 
 NCU shows why the change is substantial:
 
@@ -154,7 +154,7 @@ The five paths were interleaved on the same dedicated SM100 GPU on **2026-11-05*
 
 The environment was Python 3.12.3, PyTorch 2.13.0 / CUDA 13, Triton 3.7.1, FA4 4.0.0b34, cuDNN Frontend 1.31.0, CUTLASS DSL 4.7.1, and driver 580.95.05. A cache flush followed by one warm replay preceded each timing window; these are repeated-execution measurements. Compilation, planning, external layout conversion, host dispatch, and the rest of the trainer were excluded.
 
-Both specialized candidates retain BF16 tensor boundaries and FP32 accumulation. Each matches its own native backend's output bitwise. The joint backward's maximum gradient relative L2 is **1.86e-4**, below the unchanged `5e-4` candidate gate. Three additional replays changed Q/dO in place and poisoned output buffers with NaNs; independent native comparisons passed, with maximum relative L2 **1.89e-4**. The fixed-shape joint compilation cache remained at one entry.
+Both specialized candidates retain BF16 tensor boundaries and FP32 accumulation. Their forward outputs match their respective native backends bitwise; backward gradients are compared numerically. The joint backward's maximum gradient relative L2 is **1.86e-4**, below the unchanged `5e-4` candidate gate. Additional CUDA Graph regression checks also passed against fresh native executions, with maximum gradient relative L2 **1.89e-4**.
 
 Cross-library BF16 arithmetic is not bitwise identical. These operator checks do not certify independent optimizer trajectories or acceptance rates. No new sanitizer run was performed for this remeasurement; the maintained joint path remains opt-in and its unresolved racecheck-tool validation limit remains visible. Numerical validation, training quality, and performance are separate questions.
 
