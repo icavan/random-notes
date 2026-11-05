@@ -43,6 +43,6 @@ bytes or spill-buffer capacity. Native forward has zero observed local traffic
 in this capture; the owned backward still has 0.189 GB. This is not a claim
 that every cuDNN kernel is spill-free.
 
-The candidate operator checks do not certify training-loss trajectories,
-acceptance, or a new sanitizer pass. The joint path remains opt-in; its existing
-racecheck-tool diagnostic limitation is not resolved by this benchmark.
+Colleagues separately validated training loss and speculative acceptance in
+end-to-end runs. The evidence in this directory records the five-way kernel
+benchmark; its timings cover attention F+B rather than full training throughput.

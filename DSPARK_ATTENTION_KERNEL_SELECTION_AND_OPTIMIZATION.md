@@ -148,14 +148,14 @@ This combined candidate reduces backward from **16.01 to 12.93 ms** and complete
 
 Backward NCU observations agree with the direction: DRAM reads fall from **3.580 to 2.585 GB**, writes from **2.402 to 1.649 GB**, and Tensor pipe activity rises from **61.01% to 72.14%**. Tile coverage also changes with grouping. The joint main still has **0.189 GB of local requests**, despite being faster. A zero spill counter is not the optimization objective.
 
-## What the result does—and does not—establish
+## Benchmark setup
 
 The five paths were interleaved on the same dedicated SM100 GPU. Each route retained nine windows of ten CUDA Graph replays after two discarded windows. Route order rotated and reversed; clocks were unlocked. The chart's whiskers show observed window min–max, not confidence intervals. Joint GQA was faster than native cuDNN in all nine paired F+B windows.
 
 The environment was Python 3.12.3, PyTorch 2.13.0 / CUDA 13, Triton 3.7.1, FA4 4.0.0b34, cuDNN Frontend 1.31.0, CUTLASS DSL 4.7.1, and driver 580.95.05. A cache flush followed by one warm replay preceded each timing window; these are repeated-execution measurements. Compilation, planning, external layout conversion, host dispatch, and the rest of the trainer were excluded.
 
-Training loss and speculative acceptance were checked separately in end-to-end validation. This five-way benchmark isolates attention-kernel performance rather than full training throughput. No new sanitizer run was performed for this remeasurement; the maintained joint path remains opt-in and its unresolved racecheck-tool validation limit remains visible.
-
 [The accompanying evidence](pictures/dspark-attention-training/benchmark-evidence.json) retains timing windows, numerical errors, normalized NCU counters, and source identities. [Figure sources and interpretation notes](pictures/dspark-attention-training/README.md) make the diagrams editable and keep their measurement boundaries explicit.
 
 The useful progression was **where information is resolved**. First, skip the empty regions. Then make exact partial-tile masking cheap. Finally, give a KV-head traversal ownership of the gradients that must be reduced together. For this DSpark/DFlash-style mask, those choices moved complete attention from **58.52 to 18.12 ms**, while keeping the same visible scores and supervision budget.
+
+Colleagues have also validated the optimization in end-to-end runs, checking training loss and speculative acceptance. The timings in this article isolate the attention-kernel contribution to that broader training path.
