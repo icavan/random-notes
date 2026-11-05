@@ -154,9 +154,7 @@ The five paths were interleaved on the same dedicated SM100 GPU. Each route reta
 
 The environment was Python 3.12.3, PyTorch 2.13.0 / CUDA 13, Triton 3.7.1, FA4 4.0.0b34, cuDNN Frontend 1.31.0, CUTLASS DSL 4.7.1, and driver 580.95.05. A cache flush followed by one warm replay preceded each timing window; these are repeated-execution measurements. Compilation, planning, external layout conversion, host dispatch, and the rest of the trainer were excluded.
 
-Both specialized candidates retain BF16 tensor boundaries and FP32 accumulation. Their forward outputs match their respective native backends bitwise; backward gradients are compared numerically. The joint backward's maximum gradient relative L2 is **1.86e-4**, below the unchanged `5e-4` candidate gate. Additional CUDA Graph regression checks also passed against fresh native executions, with maximum gradient relative L2 **1.89e-4**.
-
-Cross-library BF16 arithmetic is not bitwise identical. These operator checks do not certify independent optimizer trajectories or acceptance rates. No new sanitizer run was performed for this remeasurement; the maintained joint path remains opt-in and its unresolved racecheck-tool validation limit remains visible. Numerical validation, training quality, and performance are separate questions.
+Training loss and speculative acceptance were checked separately in end-to-end validation. This five-way benchmark isolates attention-kernel performance rather than full training throughput. No new sanitizer run was performed for this remeasurement; the maintained joint path remains opt-in and its unresolved racecheck-tool validation limit remains visible.
 
 [The accompanying evidence](pictures/dspark-attention-training/benchmark-evidence.json) retains timing windows, numerical errors, normalized NCU counters, and source identities. [Figure sources and interpretation notes](pictures/dspark-attention-training/README.md) make the diagrams editable and keep their measurement boundaries explicit.
 
