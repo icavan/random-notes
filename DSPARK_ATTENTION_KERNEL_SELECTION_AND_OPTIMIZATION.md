@@ -150,7 +150,7 @@ Backward NCU observations agree with the direction: DRAM reads fall from **3.580
 
 ## What the result does—and does not—establish
 
-The five paths were interleaved on the same dedicated SM100 GPU on **2026-11-05**. Each route retained nine windows of ten CUDA Graph replays after two discarded windows. Route order rotated and reversed; clocks were unlocked. The chart's whiskers show observed window min–max, not confidence intervals. Joint GQA was faster than native cuDNN in all nine paired F+B windows.
+The five paths were interleaved on the same dedicated SM100 GPU. Each route retained nine windows of ten CUDA Graph replays after two discarded windows. Route order rotated and reversed; clocks were unlocked. The chart's whiskers show observed window min–max, not confidence intervals. Joint GQA was faster than native cuDNN in all nine paired F+B windows.
 
 The environment was Python 3.12.3, PyTorch 2.13.0 / CUDA 13, Triton 3.7.1, FA4 4.0.0b34, cuDNN Frontend 1.31.0, CUTLASS DSL 4.7.1, and driver 580.95.05. A cache flush followed by one warm replay preceded each timing window; these are repeated-execution measurements. Compilation, planning, external layout conversion, host dispatch, and the rest of the trainer were excluded.
 

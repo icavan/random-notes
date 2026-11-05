@@ -8,7 +8,6 @@
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>Paired five-way DSpark attention F+B benchmark</dc:title>
-    <dc:date>2026-11-05</dc:date>
     <dc:description>Same frozen input, exclusive GPU, interleaved timing. Optimization error gates and min-max ranges are disclosed.</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
@@ -312,7 +311,7 @@ L -4 -0
    <text style="fill: #637481; font: 12.5px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="64.8" y="730.944" transform="rotate(-0 64.8 730.944)">BF16 tensor boundaries / FP32 accumulation; TF32 off. Optimization outputs match native bitwise; gradient comparisons pass the unchanged 5e-4 gate.</text>
   </g>
   <g id="text_31">
-   <text style="fill: #637481; font: 12.5px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="64.8" y="756.6048" transform="rotate(-0 64.8 756.6048)">Compilation, plan construction and external layout copies excluded. Attention-kernel timing, not training E2E. Measured 2026-11-05.</text>
+   <text style="fill: #637481; font: 12.5px 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="64.8" y="756.6048" transform="rotate(-0 64.8 756.6048)">Compilation, plan construction and external layout copies excluded. Attention-kernel timing, not training E2E.</text>
   </g>
  </g>
  <defs>

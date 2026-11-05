@@ -136,5 +136,5 @@
 <text x="102" y="1291" font-size="22" fill="#26394A" font-weight="300" text-anchor="start">Paired attention F+B: FA4 48.59 ms → interval 30.16 ms; native cuDNN 21.15 ms.</text>
 <text x="80" y="1352" font-size="19" fill="#61717D" font-weight="300" text-anchor="start">Register bars are schematic, not measured register counts. Local requests are not HBM bytes or spill-buffer capacity.</text>
 <text x="80" y="1383" font-size="19" fill="#61717D" font-weight="300" text-anchor="start">Native and patched cuDNN share this forward. Joint-GQA optimization targets backward; its counters are separate.</text>
-<text x="80" y="1414" font-size="19" fill="#61717D" font-weight="300" text-anchor="start">Measured 2026-11-05. Plan construction excluded. NCU forward-main and graph F+B timings are separate; not training E2E.</text>
+<text x="80" y="1414" font-size="19" fill="#61717D" font-weight="300" text-anchor="start">Plan construction excluded. NCU forward-main and graph F+B timings are separate; not training E2E.</text>
 </svg>
