@@ -19,6 +19,13 @@ It is common to the selected DSpark and DFlash-style configurations, not a claim
 that their complete models or objectives are identical. Toy contexts contain 48
 and 36 tokens, with five anchors total, only to make visible regions legible.
 The benchmark instead has 131072 context tokens and 6144 anchors.
+The CP=1 physical key order is `[A context, B context, A0, A1, A2, B0, B1]`:
+all context precedes all draft keys. The toy cuDNN THD call has Q/KV lengths
+35/119 and cumulative lengths `[0,35]` / `[0,119]` for one packed row;
+intervals isolate the documents within it. The displayed anchors are
+**document-local**; RoPE positions are separate from physical key offsets.
+This matches ASpec's dual-source KV construction and `direct_cp` THD adapter,
+which preserve packed rows rather than regrouping KV per document on each layer.
 
 The five-way measurement uses the same frozen tensors, document boundaries,
 anchor positions and per-document supervision budget for every route. The

@@ -22,7 +22,7 @@ An anchor identifies a position in a context document. Each anchor expands into 
 
 They cannot attend to another document, a later context position, or another anchor's draft block. Attention within the draft block is fully visible in this configuration. Causal-within-block or sliding-window variants would change the boundaries.
 
-![The DSpark/DFlash-style mask: visible context prefixes, own draft blocks, and full/partial/empty tile classification.](pictures/dspark-attention-training/01-visible-regions.png)
+![The source-aligned packed mask: all context keys before all draft keys, document-local prefixes, and full/partial/empty tiles.](pictures/dspark-attention-training/01-visible-regions.png)
 
 For a query in anchor block `r` of document `d`, write the visible key positions as:
 
@@ -30,7 +30,19 @@ For a query in anchor block `r` of document `d`, write the visible key positions
 \mathcal{V}(q) = [c_d, a_r) \;\cup\; [t_r, t_r+B).
 ```
 
-Here `c_d` is the document's context start, `a_r` its anchor boundary, and `t_r` the start of its own draft block, all in the same flattened key coordinate system. Native THD APIs can instead use sample-local endpoints and cumulative lengths to preserve document ownership.
+Here `c_d` is the document's context start, `a_r` its anchor boundary, and `t_r` the start of its own draft block, all in the same flattened key coordinate system. In particular, `a_r = c_d + local_anchor`; a document-local anchor is not itself a physical KV offset.
+
+The figure follows ASpec's CP=1 packed implementation: **all context keys come first, then all draft keys**. For its two toy documents, the physical order is:
+
+```text
+Context: [A context (48 tokens) | B context (36 tokens)]
+Draft Q: [A0 (7) | A1 (7) | A2 (7) | B0 (7) | B1 (7)]
+K / V:   [A context | B context | A0 | A1 | A2 | B0 | B1]
+```
+
+For example, B0's local anchor is 10. Its seven queries see context keys `[48, 58)` and their own draft keys `[105, 112)`. They cannot see A's context or any other draft block. RoPE still uses positions local to each document; the physical KV offsets above are only storage and mask coordinates.
+
+In this cuDNN THD adapter, Q and KV are flattened to `[T, H, D]`, and cumulative lengths delimit **packed rows**, not each original document. This one-row example has `cu_seqlens_q=[0,35]` and `cu_seqlens_k=[0,119]`; interval endpoints enforce document isolation inside that row. The FA4 route retains a singleton batch for its fixed sparse API and uses document/block metadata for the same visibility. THD does not require interleaving each document's context with its draft blocks.
 
 This is a small union of intervals, but it is not one ordinary causal triangle. Prefix boundaries differ across anchors, and packing adds document boundaries. A flexible mask is necessary.
 
