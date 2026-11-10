@@ -67,6 +67,7 @@ nav:
   - Distributed Systems:
       - CUDA VMM and Communication Layers: CUDA_VMM_COMMUNICATION_LAYERS.md
       - MoonEP Public API Visual Guide: MOONEP_PUBLIC_API_VISUAL_GUIDE.md
+      - CUDA Graph Memory Reuse and Megatron Optimizations: CUDA_GRAPH_MEMORY_REUSE_AND_MEGATRON_OPTIMIZATIONS.md
   - About: about.md
 
 markdown_extensions:
