@@ -78,6 +78,7 @@ hide:
 
 | Note | Topic | Focus |
 | --- | --- | --- |
+| [Mapping Tensor-Core Shape Efficiency on Blackwell and Hopper](BLACKWELL_HOPPER_MMA_SHAPE_MICROBENCHMARKS.md) | Kernels | BF16 tcgen05, weight-stationary reuse, WGMMA SS/RS, and shape-dependent SOL |
 | [DSpark Attention: From Flexible Masks to a 3.23× Speedup](DSPARK_ATTENTION_KERNEL_SELECTION_AND_OPTIMIZATION.md) | Attention | DSpark/DFlash mask geometry, five matched backends, interval predicates, and joint GQA backward |
 | [Deterministic DSA Backward: Private Shards to Cluster Relays](DSA_BACKWARD_DETERMINISM_PRIVATE_SHARDS_TO_CLUSTER_RELAYS.md) | Attention | Bounded waves, row-aware acquire/release relays, fixed reductions, and million-token workspace scaling |
 | [KDA Recompute Memory: FLA vs FROST](KDA_RECOMPUTE_MEMORY_FLA_VS_FROST.md) | Attention | Measured peaks, source-based memory accounting, and gradient-buffer lifetimes |
