@@ -49,6 +49,7 @@ theme:
 
 nav:
   - Home: index.md
+  - Archive: archive.md
   - GPU Kernels:
       - Engineering a Fast Hadamard Transform: FAST_HADAMARD_TRANSFORM_GPU_OPTIMIZATION.md
       - Blackwell and Hopper MMA Shape Microbenchmarks: BLACKWELL_HOPPER_MMA_SHAPE_MICROBENCHMARKS.md

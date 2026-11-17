@@ -17,7 +17,7 @@
 
       <nav class="profile-nav" aria-label="Primary">
         <a class="is-active" href="{{ nav.homepage.url | url }}">Home</a>
-        <a href="#recent-notes">Archive</a>
+        <a href="{{ 'archive/' | url }}">Archive</a>
         <a href="#topics">Topics</a>
         <a href="{{ 'about/' | url }}">About</a>
       </nav>
@@ -68,7 +68,7 @@
       <section class="recent-notes" id="recent-notes" aria-labelledby="recent-notes-heading">
         <div class="section-heading">
           <h2 id="recent-notes-heading">Recent Notes</h2>
-          <a href="#topics">View by topic <span aria-hidden="true">→</span></a>
+          <a href="{{ 'archive/' | url }}">View all notes <span aria-hidden="true">→</span></a>
         </div>
         <div class="notes-grid">
           <article class="note-row">
